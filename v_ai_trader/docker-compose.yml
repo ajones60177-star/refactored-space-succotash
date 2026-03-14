@@ -1,0 +1,26 @@
+version: '3.8'
+
+services:
+  v-ai-trader:
+    build: .
+    container_name: v-ai-trader
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./main.py:/app/main.py
+      - ./static:/app/static
+      - alfa_db:/app/data
+    environment:
+      - ALFA_SECRET=alfa_ai_ultimate_secret
+      - DERIV_APP_ID=1089
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/api/status"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 5s
+
+volumes:
+  alfa_db:
+    driver: local

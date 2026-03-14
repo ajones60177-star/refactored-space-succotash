@@ -1,0 +1,718 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>V Ai Trader — ALFA AI</title>
+  <link rel="stylesheet" href="/static/style.css">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+</head>
+<body>
+
+<!-- LOGIN -->
+  <div id="login" class="login-container">
+  <div class="login-box">
+    <div class="logo-head">⚡ ALFA_TRADER</div>
+    <form onsubmit="handleLogin(event)">
+      <input type="text" id="login-user" placeholder="Username" required>
+      <input type="password" id="login-pass" placeholder="Password" required>
+      <button type="submit" class="btn-login">ENTER</button>
+    </form>
+    <div id="login-err" class="login-err"></div>
+  </div>
+</div>
+
+<!-- APP: three-column layout -->
+<div id="app" class="app-wrap hidden">
+  <aside class="left-col">
+    <div class="brand">ALFA_TRADER</div>
+    <div class="conn-card">
+      <div class="conn-title">DERIV STATUS</div>
+      <div id="conn-text" class="conn-status">OFFLINE</div>
+    </div>
+
+    <div class="section">STRATEGIES</div>
+    <div id="strategies-list" class="strategies-list"></div>
+
+    <div class="section muted">Disabled Strategies</div>
+    <div class="disabled-list">
+      <div class="disabled-item">Auto R5 <span class="tag">Coming Soon</span></div>
+      <div class="disabled-item">Unibot <span class="tag">Under Maintenance</span></div>
+    </div>
+  </aside>
+
+  <main class="center-col">
+    <header class="topbar">
+      <div class="title">Trading Terminal</div>
+      <div class="controls">
+        <select id="symbolSelect" onchange="updateAnalysis()"></select>
+        <div class="balance">Balance <strong id="balance">$10,000</strong></div>
+      </div>
+    </header>
+
+    <section class="stats">
+      <div class="stat">
+        <div class="label">AI SIGNAL</div>
+        <div id="ai-signal" class="value">HOLD</div>
+      </div>
+      <div class="stat">
+        <div class="label">CONFIDENCE</div>
+        <div id="ai-conf" class="value">0%</div>
+      </div>
+      <div class="stat">
+        <div class="label">EXECUTE</div>
+        <div class="exec-controls">
+          <input type="number" id="stake" value="1.00">
+          <button class="btn rise" onclick="executeTrade('CALL')">RISE</button>
+          <button class="btn fall" onclick="executeTrade('PUT')">FALL</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="panels">
+      <div class="panel card">
+        <div class="panel-head">📊 Market Data (LIVE)</div>
+        <div id="market-data" class="market-data">
+          <p class="muted">Select a market to view live price data.</p>
+          <div id="live-price" style="display:none;">
+            <div class="price-display">
+              <span class="label">Current Price:</span>
+              <span id="price-value" class="price-value">---</span>
+            </div>
+            <div class="price-chart">
+              <svg id="micro-chart" width="100%" height="80"></svg>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel card">
+        <div class="panel-head">📈 Probability Scanner</div>
+        <div id="digit-grid" class="digit-grid"></div>
+      </div>
+    </section>
+  </main>
+
+  <aside class="right-col">
+    <div class="right-top">
+      <div class="small-head">📜 Trade History</div>
+      <div id="trade-history" class="trade-history">
+        <div class="history-placeholder">No trades yet. Start trading!</div>
+      </div>
+    </div>
+
+    <div class="actions">
+      <!-- large colorful action buttons mimic screenshot -->
+      <button class="action-btn c1" onclick="quickTrade('R_10', 1, 'CALL')">Place TradeX Trade</button>
+      <button class="action-btn c2" onclick="quickTrade('R_25', 0.5, 'CALL')">KILLER Gx (0.4s)</button>
+      <button class="action-btn c3" onclick="burstTrade('R_50', 1)">Start Auto Trading (Random DIFFERS)</button>
+      <button class="action-btn c4" onclick="quickTrade('R_75', 2, 'CALL')">INSTANT 5 ON DIGIT 1</button>
+      <button class="action-btn c5" onclick="burstTrade('BOOM_1000', 1.5)">AUTO RANDOM TRADE (All 20 Pairs)</button>
+      <button class="action-btn c6" onclick="quickTrade('CRASH_1000', 3, 'PUT')">AI AUTO TRADE (SUPER FAST)</button>
+      <button class="action-btn c7" onclick="burstTrade('R_100', 2)">ALL PAIR DIFFERS 45SEC</button>
+      <button class="action-btn c8" onclick="quickTrade('R_100_1S', 1, 'CALL')">CONTINUOUS FAST TRADE</button>
+      <button class="action-btn c9" onclick="quickTrade('R_10', 0.5, 'PUT')">INSTANT AUTO TRADE</button>
+      <button class="action-btn c10" onclick="burstTrade('R_25', 3)">KNOCKOUT ANALYZER</button>
+      <button class="action-btn c11" onclick="burstTrade('R_50', 2.5)">Trade All 7 Jump Pairs</button>
+    </div>
+  </aside>
+</div>
+
+<!-- Admin Button -->
+<button class="admin-btn" onclick="openAdminModal()" title="Admin Settings">⚙️</button>
+
+<!-- Admin Modal -->
+<div id="admin-modal" class="modal hidden">
+  <div class="modal-content">
+    <h3>Admin Settings</h3>
+    
+    <!-- Deriv Token Section -->
+    <label>Deriv API Token</label>
+    <textarea id="deriv-token-input" placeholder="Paste your Deriv API token here..."></textarea>
+    <div id="deriv-status" class="status-badge offline">NOT CONNECTED</div>
+    <button class="btn-modal" onclick="connectDeriv()">Connect to Deriv</button>
+    
+    <!-- Theme Section -->
+    <label style="margin-top: 24px;">UI Theme</label>
+    <select id="theme-select" onchange="changeTheme()">
+      <option value="default">Default (Blue/Purple Glassmorphic)</option>
+      <option value="neon">Neon (Vibrant Cyan & Pink)</option>
+      <option value="ocean">Ocean (Deep Blue & Green)</option>
+      <option value="sunset">Sunset (Orange & Purple)</option>
+      <option value="midnight">Midnight (Dark & Minimalist)</option>
+      <option value="cyberpunk">Cyberpunk (Bright Yellow & Magenta)</option>
+      <option value="forest">Forest (Emerald & Teal)</option>
+      <option value="cosmic">Cosmic (Deep Purple & Blue)</option>
+      <option value="lava">Lava (Red & Gold)</option>
+      <option value="aurora">Aurora (Green & Ice Blue)</option>
+      <option value="synthwave">Synthwave (80s Neon Pink)</option>
+    </select>
+    <p style="font-size: 12px; color: var(--text-secondary); margin-top: 12px;">Theme changes apply immediately</p>
+    
+    <button class="btn-modal secondary" onclick="closeAdminModal()">Close</button>
+  </div>
+</div>
+
+<script>
+  let token = localStorage.getItem('token');
+  const API = window.location.origin;
+  
+  window.onload = () => {
+    renderDigits();
+    if (token) validateSession(); else showLogin();
+    loadAdminSettings();
+    checkDerivStatus();
+    loadWalletBalance();
+    loadTradeHistory();
+    updateAnalysis();
+    
+    // Auto-refresh data every 5 seconds
+    setInterval(checkDerivStatus, 5000);
+    setInterval(loadWalletBalance, 10000);
+    setInterval(loadTradeHistory, 15000);
+    setInterval(updateAnalysis, 8000);
+    
+    // Load market data when symbol changes
+    const symbolSelect = document.getElementById('symbolSelect');
+    if (symbolSelect) {
+      symbolSelect.innerHTML = `
+        <option value="R_10">R_10</option>
+        <option value="R_25">R_25</option>
+        <option value="R_50">R_50 (selected)</option>
+        <option value="R_75">R_75</option>
+        <option value="R_100">R_100</option>
+        <option value="R_100_1S">R_100_1S</option>
+        <option value="BOOM_1000">BOOM_1000</option>
+        <option value="CRASH_1000">CRASH_1000</option>
+      `;
+      symbolSelect.value = 'R_50';
+      symbolSelect.onchange = updateAnalysis;
+    }
+  }
+
+  // ===== CHECK DERIV STATUS =====
+  async function checkDerivStatus() {
+    try {
+      const res = await fetch(API + '/api/status');
+      if (res.ok) {
+        const data = await res.json();
+        const connText = document.getElementById('conn-text');
+        if (connText) {
+          if (data.deriv_status.includes('CONNECTED')) {
+            connText.textContent = '🟢 ONLINE';
+            connText.style.color = 'var(--accent-green)';
+          } else {
+            connText.textContent = '🔴 OFFLINE';
+            connText.style.color = 'var(--accent-pink)';
+          }
+        }
+      }
+    } catch (err) { console.error(err); }
+  }
+
+  // ===== ADMIN MODAL =====
+  function openAdminModal() {
+    document.getElementById('admin-modal').classList.remove('hidden');
+    loadAdminSettings();
+  }
+  
+  function closeAdminModal() {
+    document.getElementById('admin-modal').classList.add('hidden');
+  }
+
+  async function loadAdminSettings() {
+    if (!token) return;
+    try {
+      const res = await fetch(API + '/api/config', {
+        headers: { 'Authorization': 'Bearer ' + token }
+      });
+      if (res.ok) {
+        const data = await res.json();
+        const theme = localStorage.getItem('theme') || 'default';
+        document.getElementById('theme-select').value = theme;
+        
+        // Check if Deriv is connected
+        const statusRes = await fetch(API + '/api/status');
+        if (statusRes.ok) {
+          const statusData = await statusRes.json();
+          if (statusData.deriv_status.includes('CONNECTED')) {
+            document.getElementById('deriv-status').classList.remove('offline');
+            document.getElementById('deriv-status').classList.add('online');
+            document.getElementById('deriv-status').textContent = 'CONNECTED ✓';
+          }
+        }
+      }
+    } catch (err) { console.error(err); }
+  }
+
+  async function connectDeriv() {
+    if (!token) return;
+    const apiToken = document.getElementById('deriv-token-input').value.trim();
+    if (!apiToken) {
+      alert('Please enter your Deriv API token');
+      return;
+    }
+    try {
+      const res = await fetch(API + '/admin/connect', {
+        method: 'POST',
+        headers: {
+          'Authorization': 'Bearer ' + token,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ token: apiToken })
+      });
+      if (res.ok) {
+        document.getElementById('deriv-status').classList.remove('offline');
+        document.getElementById('deriv-status').classList.add('online');
+        document.getElementById('deriv-status').textContent = 'CONNECTED ✓';
+        
+        // Update main app status immediately
+        const connText = document.getElementById('conn-text');
+        if (connText) {
+          connText.textContent = '🟢 ONLINE';
+          connText.style.color = 'var(--accent-green)';
+        }
+        
+        alert('🎉 Connected to Deriv!');
+      } else {
+        alert('Failed to connect to Deriv');
+      }
+    } catch (err) {
+      alert('Connection error: ' + err.message);
+    }
+  }
+
+  async function changeTheme() {
+    const theme = document.getElementById('theme-select').value;
+    localStorage.setItem('theme', theme);
+    applyTheme(theme);
+    if (token) {
+      try {
+        await fetch(API + '/admin/setting', {
+          method: 'POST',
+          headers: {
+            'Authorization': 'Bearer ' + token,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ key: 'ui_theme', value: theme })
+        });
+      } catch (err) { console.error(err); }
+    }
+  }
+
+  function applyTheme(theme) {
+    const root = document.documentElement;
+    const themes = {
+      default: {
+        '--accent-blue': '#00d4ff',
+        '--accent-purple': '#a855f7',
+        '--accent-pink': '#ec4899',
+        '--accent-green': '#10b981',
+        '--bg-primary': '#0a0e27',
+        '--bg-secondary': '#0f1434',
+        '--glass': 'rgba(255, 255, 255, 0.08)',
+        '--glass-hover': 'rgba(255, 255, 255, 0.12)',
+        '--text-primary': '#ffffff',
+        '--text-secondary': '#cbd5e1',
+        '--border': 'rgba(255, 255, 255, 0.15)'
+      },
+      neon: {
+        '--accent-blue': '#00ffff',
+        '--accent-purple': '#ff00ff',
+        '--accent-pink': '#ff006e',
+        '--accent-green': '#39ff14',
+        '--bg-primary': '#0a0a14',
+        '--bg-secondary': '#15151f',
+        '--glass': 'rgba(0, 255, 255, 0.1)',
+        '--glass-hover': 'rgba(0, 255, 255, 0.15)',
+        '--text-primary': '#ffffff',
+        '--text-secondary': '#b0b0c0',
+        '--border': 'rgba(0, 255, 255, 0.25)'
+      },
+      ocean: {
+        '--accent-blue': '#0ea5e9',
+        '--accent-purple': '#1e7e7e',
+        '--accent-pink': '#06b6d4',
+        '--accent-green': '#10b981',
+        '--bg-primary': '#0a1628',
+        '--bg-secondary': '#0f2844',
+        '--glass': 'rgba(14, 165, 233, 0.08)',
+        '--glass-hover': 'rgba(14, 165, 233, 0.12)',
+        '--text-primary': '#e0f2fe',
+        '--text-secondary': '#94c5d9',
+        '--border': 'rgba(14, 165, 233, 0.2)'
+      },
+      sunset: {
+        '--accent-blue': '#fb923c',
+        '--accent-purple': '#f97316',
+        '--accent-pink': '#fbbf24',
+        '--accent-green': '#f59e0b',
+        '--bg-primary': '#2a1716',
+        '--bg-secondary': '#3f2620',
+        '--glass': 'rgba(249, 115, 22, 0.08)',
+        '--glass-hover': 'rgba(249, 115, 22, 0.12)',
+        '--text-primary': '#fff5e6',
+        '--text-secondary': '#d4a574',
+        '--border': 'rgba(249, 115, 22, 0.2)'
+      },
+      midnight: {
+        '--accent-blue': '#6366f1',
+        '--accent-purple': '#4f46e5',
+        '--accent-pink': '#7c3aed',
+        '--accent-green': '#8b5cf6',
+        '--bg-primary': '#050510',
+        '--bg-secondary': '#0a0a15',
+        '--glass': 'rgba(99, 102, 241, 0.04)',
+        '--glass-hover': 'rgba(99, 102, 241, 0.08)',
+        '--text-primary': '#f3f4f6',
+        '--text-secondary': '#9ca3af',
+        '--border': 'rgba(99, 102, 241, 0.1)'
+      },
+      cyberpunk: {
+        '--accent-blue': '#ffff00',
+        '--accent-purple': '#ff00ff',
+        '--accent-pink': '#00ffff',
+        '--accent-green': '#ffff00',
+        '--bg-primary': '#0d0221',
+        '--bg-secondary': '#1a0033',
+        '--glass': 'rgba(255, 0, 255, 0.08)',
+        '--glass-hover': 'rgba(255, 0, 255, 0.15)',
+        '--text-primary': '#00ffff',
+        '--text-secondary': '#ffff00',
+        '--border': 'rgba(255, 0, 255, 0.3)'
+      },
+      forest: {
+        '--accent-blue': '#14b8a6',
+        '--accent-purple': '#10b981',
+        '--accent-pink': '#06b6d4',
+        '--accent-green': '#059669',
+        '--bg-primary': '#051a15',
+        '--bg-secondary': '#0a2f28',
+        '--glass': 'rgba(20, 184, 166, 0.08)',
+        '--glass-hover': 'rgba(20, 184, 166, 0.12)',
+        '--text-primary': '#d1fae5',
+        '--text-secondary': '#a7f3d0',
+        '--border': 'rgba(20, 184, 166, 0.25)'
+      },
+      cosmic: {
+        '--accent-blue': '#8366ff',
+        '--accent-purple': '#a78bfa',
+        '--accent-pink': '#c084fc',
+        '--accent-green': '#8366ff',
+        '--bg-primary': '#15132f',
+        '--bg-secondary': '#1f1a4d',
+        '--glass': 'rgba(131, 102, 255, 0.08)',
+        '--glass-hover': 'rgba(131, 102, 255, 0.15)',
+        '--text-primary': '#e9d5ff',
+        '--text-secondary': '#d8b4fe',
+        '--border': 'rgba(131, 102, 255, 0.25)'
+      },
+      lava: {
+        '--accent-blue': '#ff6b35',
+        '--accent-purple': '#ff4500',
+        '--accent-pink': '#ff8c00',
+        '--accent-green': '#ffa500',
+        '--bg-primary': '#2a0f0f',
+        '--bg-secondary': '#401515',
+        '--glass': 'rgba(255, 107, 53, 0.08)',
+        '--glass-hover': 'rgba(255, 107, 53, 0.15)',
+        '--text-primary': '#ffe4c4',
+        '--text-secondary': '#ffd7a8',
+        '--border': 'rgba(255, 107, 53, 0.25)'
+      },
+      aurora: {
+        '--accent-blue': '#00ffaa',
+        '--accent-purple': '#00dd55',
+        '--accent-pink': '#00ffff',
+        '--accent-green': '#00ff88',
+        '--bg-primary': '#082a2d',
+        '--bg-secondary': '#0f4a4f',
+        '--glass': 'rgba(0, 255, 170, 0.08)',
+        '--glass-hover': 'rgba(0, 255, 170, 0.15)',
+        '--text-primary': '#c8fae7',
+        '--text-secondary': '#a3f0d6',
+        '--border': 'rgba(0, 255, 170, 0.25)'
+      },
+      synthwave: {
+        '--accent-blue': '#ff006e',
+        '--accent-purple': '#ff006e',
+        '--accent-pink': '#ff006e',
+        '--accent-green': '#ffbe0b',
+        '--bg-primary': '#1a0033',
+        '--bg-secondary': '#2d0052',
+        '--glass': 'rgba(255, 0, 110, 0.1)',
+        '--glass-hover': 'rgba(255, 0, 110, 0.15)',
+        '--text-primary': '#ffb3e6',
+        '--text-secondary': '#ff99dd',
+        '--border': 'rgba(255, 0, 110, 0.3)'
+      }
+    };
+    const t = themes[theme] || themes.default;
+    for (const [key, val] of Object.entries(t)) {
+      root.style.setProperty(key, val);
+    }
+  }
+
+  // ===== LOAD WALLET & HISTORY =====
+  async function loadWalletBalance() {
+    if (!token) return;
+    try {
+      const res = await fetch(API + '/api/wallet', {
+        headers: { 'Authorization': 'Bearer ' + token }
+      });
+      if (res.ok) {
+        const data = await res.json();
+        const balanceEl = document.getElementById('balance');
+        if (balanceEl) {
+          balanceEl.textContent = `$${parseFloat(data.balance).toFixed(2)}`;
+        }
+      }
+    } catch (err) {
+      console.error('Failed to load wallet:', err);
+    }
+  }
+
+  async function loadTradeHistory() {
+    if (!token) return;
+    try {
+      const res = await fetch(API + '/api/history', {
+        headers: { 'Authorization': 'Bearer ' + token }
+      });
+      if (res.ok) {
+        const data = await res.json();
+        const historyContainer = document.getElementById('trade-history');
+        if (!historyContainer) return;
+
+        if (data.trades.length === 0) {
+          historyContainer.innerHTML = '<div class="history-placeholder">No trades yet. Start trading!</div>';
+          return;
+        }
+
+        let html = '<div class="history-list">';
+        data.trades.slice(0, 10).forEach(trade => {
+          const resultClass = trade.result === 'win' ? 'win' : trade.result === 'loss' ? 'loss' : 'pending';
+          html += `
+            <div class="history-item ${resultClass}">
+              <div class="trade-info">
+                <span class="symbol">${trade.symbol}</span>
+                <span class="type ${trade.type.toLowerCase()}">${trade.type}</span>
+              </div>
+              <div class="trade-amount">$${parseFloat(trade.amount).toFixed(2)}</div>
+              <div class="trade-time">${trade.time.split(' ')[1]}</div>
+            </div>
+          `;
+        });
+        html += '</div>';
+        historyContainer.innerHTML = html;
+      }
+    } catch (err) {
+      console.error('Failed to load history:', err);
+    }
+  }
+
+  async function loadMarketData() {
+    const symbol = document.getElementById('symbolSelect')?.value || 'R_10';
+    if (!symbol || !token) return;
+
+    try {
+      const res = await fetch(API + `/api/ticks/${symbol}`, {
+        headers: { 'Authorization': 'Bearer ' + token }
+      });
+      if (res.ok) {
+        const data = await res.json();
+        const livePrice = document.getElementById('live-price');
+        const priceValue = document.getElementById('price-value');
+        const marketData = document.getElementById('market-data');
+
+        if (data.status === 'offline') {
+          marketData.innerHTML = '<p class="muted">⚠️ Deriv connection required for live data</p>';
+          return;
+        }
+
+        if (data.current_price) {
+          priceValue.textContent = `${parseFloat(data.current_price).toFixed(4)}`;
+          livePrice.style.display = 'block';
+
+          // Draw micro chart
+          const svg = document.getElementById('micro-chart');
+          if (svg && data.ticks && data.ticks.length > 1) {
+            drawMiniChart(svg, data.ticks.map(t => t.price));
+          }
+        } else {
+          marketData.innerHTML = '<p class="muted">Unable to fetch live data. Check your Deriv connection.</p>';
+        }
+      }
+    } catch (err) {
+      console.error('Failed to load market data:', err);
+    }
+  }
+
+  function drawMiniChart(svg, prices) {
+    if (!prices || prices.length < 2) return;
+
+    const width = svg.getAttribute('width');
+    const height = svg.getAttribute('height');
+    const minPrice = Math.min(...prices);
+    const maxPrice = Math.max(...prices);
+    const range = maxPrice - minPrice || 1;
+
+    let pathData = 'M 0 ' + (height - ((prices[0] - minPrice) / range) * (height - 10) - 5);
+    const stepX = width / (prices.length - 1);
+
+    for (let i = 1; i < prices.length; i++) {
+      const x = i * stepX;
+      const y = height - ((prices[i] - minPrice) / range) * (height - 10) - 5;
+      pathData += ` L ${x} ${y}`;
+    }
+
+    let path = svg.querySelector('path');
+    if (!path) {
+      path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+      path.setAttribute('stroke', 'var(--accent-blue)');
+      path.setAttribute('stroke-width', '2');
+      path.setAttribute('fill', 'none');
+      svg.appendChild(path);
+    }
+    path.setAttribute('d', pathData);
+  }
+
+  async function quickTrade(symbol, amount, type) {
+    if (!token) return alert('Please login first');
+    if (!trader || !trader.connected) return alert('Connect to Deriv first');
+
+    try {
+      const res = await fetch(API + '/api/trade', {
+        method: 'POST',
+        headers: {
+          'Authorization': 'Bearer ' + token,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          symbol: symbol,
+          amount: amount,
+          contract_type: type
+        })
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        await fetch(API + '/api/save-trade', {
+          method: 'POST',
+          headers: {
+            'Authorization': 'Bearer ' + token,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            symbol: symbol,
+            amount: amount,
+            type: type,
+            status: 'executed',
+            contract_id: data.contract_id
+          })
+        });
+        
+        // Refresh wallet and history
+        loadWalletBalance();
+        loadTradeHistory();
+        alert(`✅ Trade placed: ${symbol} ${type} $${amount}`);
+      } else {
+        alert('❌ Trade failed');
+      }
+    } catch (err) {
+      alert('Trade error: ' + err.message);
+    }
+  }
+
+  async function burstTrade(symbol, amount) {
+    if (!token) return alert('Please login first');
+    if (!trader || !trader.connected) return alert('Connect to Deriv first');
+
+    try {
+      const res = await fetch(API + '/api/burst', {
+        method: 'POST',
+        headers: {
+          'Authorization': 'Bearer ' + token,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          symbol: symbol,
+          amount: amount,
+          count: 5
+        })
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        loadWalletBalance();
+        loadTradeHistory();
+        alert(`✅ Executed ${data.executed} trades on ${symbol}`);
+      } else {
+        alert('❌ Burst trades failed');
+      }
+    } catch (err) {
+      alert('Burst error: ' + err.message);
+    }
+  }
+
+  function executeTrade(type) {
+    const symbol = document.getElementById('symbolSelect')?.value || 'R_10';
+    const stake = parseFloat(document.getElementById('stake')?.value || 1);
+    quickTrade(symbol, stake, type);
+  }
+
+  async function updateAnalysis() {
+    const symbol = document.getElementById('symbolSelect')?.value || 'R_10';
+    await loadMarketData();
+    if (token) {
+      try {
+        const res = await fetch(API + `/api/analysis/${symbol}`, {
+          headers: { 'Authorization': 'Bearer ' + token }
+        });
+        if (res.ok) {
+          const data = await res.json();
+          document.getElementById('ai-signal').textContent = data.signal || 'HOLD';
+          document.getElementById('ai-conf').textContent = Math.round((data.confidence || 0.5) * 100) + '%';
+        }
+      } catch (err) {
+        console.error('Failed to fetch analysis:', err);
+      }
+    }
+  }
+
+  // ===== LOGIN =====
+  async function handleLogin(e){
+    e.preventDefault();
+    const user = document.getElementById('login-user').value;
+    const pass = document.getElementById('login-pass').value;
+    const errEl = document.getElementById('login-err'); errEl.textContent='';
+    try{
+      const body = new URLSearchParams();
+      body.append('username', user);
+      body.append('password', pass);
+      const res = await fetch(API + '/token', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+        body: body.toString()
+      });
+      if(!res.ok){
+        errEl.textContent = 'Login failed';
+        return;
+      }
+      const data = await res.json();
+      localStorage.setItem('token', data.access_token);
+      token = data.access_token;
+      validateSession();
+    }catch(err){
+      errEl.textContent = 'Network error';
+    }
+  }
+
+  function showLogin(){document.getElementById('login').style.display='flex'}
+  function validateSession(){document.getElementById('login').style.display='none'; document.getElementById('app').classList.remove('hidden'); loadWalletBalance(); loadTradeHistory();}
+
+  // Load saved theme on startup
+  const savedTheme = localStorage.getItem('theme') || 'default';
+  applyTheme(savedTheme);
+</script>
+
+</body>
+</html>
