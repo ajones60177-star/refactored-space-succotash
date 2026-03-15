@@ -3,65 +3,629 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lazy Millionaire Hedging Trading Platform</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            background: rgba(255, 255, 255, 0.9);
-            backdrop-filter: blur(10px);
-            color: #333;
-        }
-        .container {
-            display: grid;
-            grid-template-columns: 1fr 1fr 1fr;
-            gap: 20px;
-            padding: 20px;
-        }
-        .trades-display, .trade-buttons, .profit-tracking, .theme-selector, .admin-panel {
-            background: rgba(255, 255, 255, 0.2);
-            border-radius: 10px;
-            padding: 20px;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-        }
-        h1 {
-            text-align: center;
-        }
-        button {
-            padding: 10px;
-            margin: 5px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-        .up { background-color: #4CAF50; color: white; }
-        .down { background-color: #F44336; color: white; }
-    </style>
+    <title>Lazy Millionaire Market Dominator</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div class="container">
-        <div class="trades-display">
-            <h1>Real-time Hedging Trades</h1>
-            <!-- Display trades here -->
+<div id="app">
+
+    <!-- ═══════════════════════════════════════════════════
+         HEADER
+    ════════════════════════════════════════════════════ -->
+    <header id="header">
+        <div class="header-logo">💰 LAZY MILLIONAIRE <span>MARKET DOMINATOR</span></div>
+        <div class="header-right">
+            <div class="conn-dot" id="connDot"></div>
+            <span class="conn-label" id="connLabel">Disconnected</span>
+            <div class="balance-badge" id="balanceBadge">USD 10.00</div>
+            <div class="pnl-badge zero" id="pnlBadge">+$0.00 Today</div>
         </div>
-        <div class="trade-buttons">
-            <h2>UP/DOWN Trade Buttons</h2>
-            <button class="up">UP</button>
-            <button class="down">DOWN</button>
+    </header>
+
+    <!-- ═══════════════════════════════════════════════════
+         SIDEBAR
+    ════════════════════════════════════════════════════ -->
+    <aside id="sidebar">
+
+        <!-- Connection -->
+        <div class="sidebar-section">
+            <div class="sidebar-title">Deriv Connection</div>
+            <div class="api-input-wrap">
+                <input id="apiToken" class="api-input" type="password" placeholder="Paste Deriv API Token…" />
+                <button id="connectBtn" class="btn-sm btn-cyan">Connect</button>
+            </div>
+            <div class="risk-row" style="margin-top:8px">
+                <span class="risk-label">Paper / Demo Mode</span>
+                <label class="tog">
+                    <input type="checkbox" id="paperToggle" checked>
+                    <span class="tog-slider"></span>
+                </label>
+            </div>
+            <div class="risk-warn">
+                ⚠️ Paper mode uses simulated prices. Enable live mode with a valid Deriv API token.
+            </div>
         </div>
-        <div class="profit-tracking">
-            <h2>Profit Tracking</h2>
-            <!-- Show profit tracking here -->
+
+        <!-- Strategies -->
+        <div class="sidebar-section">
+            <div class="sidebar-title">Trading Strategies</div>
+
+            <div class="strategy-item active">
+                <div>
+                    <div class="strategy-name">⚡ Hybrid</div>
+                    <div style="font-size:10px;color:var(--text-muted)">1%/4% Market Dominator</div>
+                </div>
+                <label class="tog">
+                    <input type="checkbox" class="strategy-toggle" data-strategy="hybrid" checked>
+                    <span class="tog-slider"></span>
+                </label>
+            </div>
+
+            <div class="strategy-item">
+                <div>
+                    <div class="strategy-name">🤖 TradBot</div>
+                    <div style="font-size:10px;color:var(--text-muted)">Matches/Differs analysis</div>
+                </div>
+                <label class="tog">
+                    <input type="checkbox" class="strategy-toggle" data-strategy="tradbot">
+                    <span class="tog-slider"></span>
+                </label>
+            </div>
+
+            <div class="strategy-item">
+                <div>
+                    <div class="strategy-name">✖ Milli X</div>
+                    <div style="font-size:10px;color:var(--text-muted)">Rise/Fall analysis</div>
+                </div>
+                <label class="tog">
+                    <input type="checkbox" class="strategy-toggle" data-strategy="millix">
+                    <span class="tog-slider"></span>
+                </label>
+            </div>
+
+            <div class="strategy-item">
+                <div>
+                    <div class="strategy-name">🧠 AI Digit</div>
+                    <div style="font-size:10px;color:var(--text-muted)">Even/Odd digit analysis</div>
+                </div>
+                <label class="tog">
+                    <input type="checkbox" class="strategy-toggle" data-strategy="aidigit">
+                    <span class="tog-slider"></span>
+                </label>
+            </div>
+
+            <div class="strategy-item">
+                <div>
+                    <div class="strategy-name">🎯 AI Pro</div>
+                    <div style="font-size:10px;color:var(--text-muted)">Professional Accumulator</div>
+                </div>
+                <label class="tog">
+                    <input type="checkbox" class="strategy-toggle" data-strategy="aipro">
+                    <span class="tog-slider"></span>
+                </label>
+            </div>
+
+            <div class="strategy-item">
+                <div>
+                    <div class="strategy-name">⚡ Dual Strike <span class="strategy-tag admin">ADMIN</span></div>
+                    <div style="font-size:10px;color:var(--text-muted)">Simultaneous 4-strike</div>
+                </div>
+                <label class="tog">
+                    <input type="checkbox" class="strategy-toggle" data-strategy="dual">
+                    <span class="tog-slider"></span>
+                </label>
+            </div>
+
+            <div class="strategy-item">
+                <div>
+                    <div class="strategy-name">📈 AI 1:1 RR</div>
+                    <div style="font-size:10px;color:var(--text-muted)">Rise/Fall Analysis</div>
+                </div>
+                <label class="tog">
+                    <input type="checkbox" class="strategy-toggle" data-strategy="ai11">
+                    <span class="tog-slider"></span>
+                </label>
+            </div>
+
+            <div class="strategy-item" style="opacity:.5">
+                <div>
+                    <div class="strategy-name">🚀 RAP RAP <span class="strategy-tag soon">SOON</span></div>
+                    <div style="font-size:10px;color:var(--text-muted)">Strategy is disabled</div>
+                </div>
+            </div>
         </div>
-        <div class="theme-selector">
-            <h2>Theme Selector</h2>
-            <!-- Add theme selector options here -->
+
+        <!-- Asset + Settings -->
+        <div class="sidebar-section">
+            <div class="sidebar-title">Market & Settings</div>
+            <div class="label">Asset</div>
+            <select id="assetSelect" class="dark-sel"></select>
+
+            <div class="label" style="margin-top:8px">Duration</div>
+            <select id="durationSel" class="dark-sel">
+                <option value="5">5 seconds</option>
+                <option value="10">10 seconds</option>
+                <option value="15" selected>15 seconds</option>
+                <option value="30">30 seconds</option>
+                <option value="60">1 minute</option>
+            </select>
+
+            <div style="margin-top:8px">
+                <div class="label">Min Confidence <span id="confLabel">65%</span></div>
+                <input type="range" id="confThreshold" min="50" max="85" value="65">
+            </div>
         </div>
-        <div class="admin-panel">
-            <h2>Admin Panel</h2>
-            <!-- Admin functionalities here -->
+
+        <!-- Risk Summary -->
+        <div class="sidebar-section">
+            <div class="sidebar-title">Risk Management</div>
+            <div class="risk-row">
+                <span class="risk-label">Stop Loss</span>
+                <span class="risk-val red">1% per trade</span>
+            </div>
+            <div class="risk-row">
+                <span class="risk-label">Take Profit</span>
+                <span class="risk-val green">4% per trade</span>
+            </div>
+            <div class="risk-row">
+                <span class="risk-label">Risk/Reward</span>
+                <span class="risk-val">1:4</span>
+            </div>
+            <div class="risk-row">
+                <span class="risk-label">Daily Loss Limit</span>
+                <span class="risk-val red">10%</span>
+            </div>
+            <div class="risk-row">
+                <span class="risk-label">Max Consec. Loss</span>
+                <span class="risk-val red">5 trades</span>
+            </div>
+            <div class="risk-row">
+                <span class="risk-label">Max Drawdown</span>
+                <span class="risk-val red">10%</span>
+            </div>
+
+            <button id="emergencyStop" class="emergency-btn">🚨 EMERGENCY STOP</button>
+            <button id="resumeBtn" class="btn-sm btn-gray" style="width:100%;margin-top:6px">▶ Resume Trading</button>
+            <button id="resetBalanceBtn" class="btn-sm btn-blue" style="width:100%;margin-top:6px">🔄 Reset Demo</button>
         </div>
-    </div>
+
+        <!-- AI Status -->
+        <div class="sidebar-section">
+            <div class="sidebar-title">AI Learning Engine</div>
+            <div class="stat-mini">
+                <span class="lbl">Phase</span>
+                <span class="val" id="aiPhase" style="color:var(--cyan)">Baseline Learning</span>
+            </div>
+            <div class="stat-mini">
+                <span class="lbl">Accuracy</span>
+                <span class="val" id="aiAccuracy" style="color:var(--green)">50.0%</span>
+            </div>
+            <div class="stat-mini">
+                <span class="lbl">Trained on</span>
+                <span class="val" id="aiTrades">0 trades</span>
+            </div>
+            <div class="learn-bar-wrap">
+                <div class="learn-bar" id="aiLearnBar" style="width:0%"></div>
+            </div>
+            <div style="font-size:10px;color:var(--text-muted);margin-top:2px">
+                Expert mode unlocks at 200 trades
+            </div>
+        </div>
+
+    </aside>
+
+    <!-- ═══════════════════════════════════════════════════
+         MAIN PANEL
+    ════════════════════════════════════════════════════ -->
+    <main id="main">
+
+        <!-- Tab bar -->
+        <div class="tab-bar">
+            <button class="tab-btn active" data-tab="trading">⚡ Trading</button>
+            <button class="tab-btn" data-tab="analytics">📊 Analytics</button>
+            <button class="tab-btn" data-tab="history">📋 History</button>
+            <button class="tab-btn" data-tab="growth">📈 Growth</button>
+        </div>
+
+        <!-- ── TAB: Trading ───────────────────────────── -->
+        <div id="tab-trading" class="tab-content active">
+            <div class="row">
+                <!-- Left column: chart + prediction + buttons -->
+                <div class="col">
+
+                    <!-- Price Chart -->
+                    <div class="card">
+                        <div class="card-title">
+                            <span class="dot"></span>
+                            LIVE PRICE CHART
+                            <span id="regimeBadge" class="regime-badge range" style="margin-left:auto">🔵 RANGING</span>
+                        </div>
+                        <div id="chart-wrap">
+                            <canvas id="priceChart"></canvas>
+                            <div class="chart-price-label" id="chartPriceLabel">--</div>
+                            <div class="barrier-upper-label" id="barrierUpper" style="top:20%">▲ --</div>
+                            <div class="barrier-lower-label" id="barrierLower" style="top:70%">▼ --</div>
+                        </div>
+                    </div>
+
+                    <!-- Win Rate -->
+                    <div class="card">
+                        <div class="card-title"><span class="dot" style="background:var(--green)"></span>WIN RATE</div>
+                        <div class="winrate-row">
+                            <span class="wr-label" style="color:var(--green)">🟢 Higher</span>
+                            <div class="wr-bar-wrap"><div class="wr-bar up" id="wrHigherBar" style="width:50%"></div></div>
+                            <span class="wr-pct" style="color:var(--green)" id="wrHigherPct">50.0%</span>
+                            <span class="wr-ticks" id="wrHigherTicks">0 wins</span>
+                        </div>
+                        <div class="winrate-row">
+                            <span class="wr-label" style="color:var(--pink)">🔴 Lower</span>
+                            <div class="wr-bar-wrap"><div class="wr-bar down" id="wrLowerBar" style="width:50%"></div></div>
+                            <span class="wr-pct" style="color:var(--pink)" id="wrLowerPct">50.0%</span>
+                            <span class="wr-ticks" id="wrLowerTicks">0 losses</span>
+                        </div>
+                    </div>
+
+                    <!-- Recent Moves -->
+                    <div class="card">
+                        <div class="card-title"><span class="dot" style="background:var(--yellow)"></span>RECENT MOVES</div>
+                        <div class="moves-grid" id="movesGrid"></div>
+                    </div>
+
+                </div><!-- /col -->
+
+                <!-- Right column: prediction + buttons + auto + strikes -->
+                <div class="col-narrow">
+
+                    <!-- AI Prediction Box -->
+                    <div class="card" style="padding:0">
+                        <div id="predBox" class="prediction-box higher">
+                            <div style="font-size:11px;color:var(--text-muted);margin-bottom:4px">🎯 AI PREDICTION</div>
+                            <div class="pred-conf higher" id="predConf">50.0%</div>
+                            <div class="pred-dir higher" id="predDir">⬆ HIGHER</div>
+                            <div class="pred-desc" id="predDesc">Analyzing market…</div>
+                            <div class="conf-bar-wrap">
+                                <div class="conf-bar higher" id="confBar" style="width:50%"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Trade Buttons -->
+                    <div class="card">
+                        <div class="card-title"><span class="dot" style="background:var(--blue)"></span>EXECUTE TRADE</div>
+                        <div class="trade-btns">
+                            <div class="trade-row">
+                                <button id="higherBtn" class="trade-btn higher-btn">
+                                    <span class="btn-label">⬆ HIGHER</span>
+                                    <span class="btn-expect" id="higherExpect">Stake: $-- | Target: $--</span>
+                                    <span class="btn-profit" id="higherProfit">Profit: +$--</span>
+                                </button>
+                                <button id="lowerBtn" class="trade-btn lower-btn">
+                                    <span class="btn-label">⬇ LOWER</span>
+                                    <span class="btn-expect" id="lowerExpect">Stake: $-- | Target: $--</span>
+                                    <span class="btn-profit" id="lowerProfit">Profit: +$--</span>
+                                </button>
+                            </div>
+                            <button id="bothBtn" class="trade-btn both-btn">
+                                <span class="btn-label">⬆⬇ HIGHER &amp; LOWER</span>
+                                <span class="btn-expect">Hedge both directions simultaneously</span>
+                                <span class="btn-profit" id="bothPayout">Combined Payout: $--</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Auto Trading -->
+                    <div class="card">
+                        <div class="auto-header">
+                            <span class="auto-title">⚡ Auto Trading</span>
+                            <span class="auto-status inactive" id="autoStatus">○ INACTIVE</span>
+                        </div>
+                        <div class="mode-btns">
+                            <button class="mode-btn active" data-mode="hml2">HML (2)</button>
+                            <button class="mode-btn" data-mode="all4">All 4</button>
+                            <button class="mode-btn" data-mode="single">Single</button>
+                        </div>
+                        <div class="auto-info">
+                            <div class="ai-cell">
+                                <div class="ai-val" id="cooldownTimer">🟢 Ready</div>
+                                <div class="ai-lbl">Cooldown</div>
+                            </div>
+                            <div class="ai-cell">
+                                <div class="ai-val" id="roundCounter">⭕ 0 rounds</div>
+                                <div class="ai-lbl">Rounds</div>
+                            </div>
+                            <div class="ai-cell">
+                                <div class="ai-val" style="color:var(--green)" id="autoNetPnL">$0.00</div>
+                                <div class="ai-lbl">Net P&amp;L</div>
+                            </div>
+                        </div>
+                        <div class="auto-progress">
+                            <div class="auto-progress-bar" id="autoProgressBar" style="width:0%"></div>
+                        </div>
+                        <button id="autoToggleBtn" class="btn-sm btn-green" style="width:100%">⚡ Start Auto</button>
+                    </div>
+
+                    <!-- 4 Simultaneous Strikes -->
+                    <div class="card">
+                        <div class="card-title"><span class="dot" style="background:var(--yellow)"></span>4 SIMULTANEOUS STRIKES</div>
+                        <div class="strikes-grid">
+                            <div class="strike-cell higher-s" id="strike0">
+                                <div class="strike-lbl h">🟢 Higher 1 (H)</div>
+                                <div class="strike-amt">--</div>
+                                <div class="strike-status idle" id="strike0-status">IDLE</div>
+                            </div>
+                            <div class="strike-cell lower-s" id="strike1">
+                                <div class="strike-lbl l">🔴 Lower 1 (L)</div>
+                                <div class="strike-amt">--</div>
+                                <div class="strike-status idle" id="strike1-status">IDLE</div>
+                            </div>
+                            <div class="strike-cell lower-s" id="strike2">
+                                <div class="strike-lbl l">🔴 Lower 2 (L)</div>
+                                <div class="strike-amt">--</div>
+                                <div class="strike-status idle" id="strike2-status">IDLE</div>
+                            </div>
+                            <div class="strike-cell higher-s" id="strike3">
+                                <div class="strike-lbl h">🟢 Higher 2 (H)</div>
+                                <div class="strike-amt">--</div>
+                                <div class="strike-status idle" id="strike3-status">IDLE</div>
+                            </div>
+                        </div>
+                        <div class="trade-info-row">
+                            <div class="ti-item">
+                                <span class="ti-label">Duration</span>
+                                <span class="ti-val" id="tiDuration">15s</span>
+                            </div>
+                            <span class="ti-sep">|</span>
+                            <div class="ti-item">
+                                <span class="ti-label">Net P&amp;L</span>
+                                <span class="ti-val" style="color:var(--green)" id="tiNetPnL">$0.00</span>
+                            </div>
+                            <span class="ti-sep">|</span>
+                            <div class="ti-item">
+                                <span class="ti-label">Win Rate</span>
+                                <span class="ti-val" id="tiWinRate">50.0%</span>
+                            </div>
+                            <span class="ti-sep">|</span>
+                            <div class="ti-item">
+                                <span class="ti-label">Total</span>
+                                <span class="ti-val" id="tiTotal">$0.00</span>
+                            </div>
+                        </div>
+                    </div>
+
+                </div><!-- /col-narrow -->
+            </div><!-- /row -->
+        </div><!-- /tab-trading -->
+
+        <!-- ── TAB: Analytics ─────────────────────────── -->
+        <div id="tab-analytics" class="tab-content">
+            <div class="card">
+                <div class="card-title"><span class="dot"></span>REAL-TIME ANALYTICS DASHBOARD</div>
+                <div class="analytics-grid">
+                    <div class="ana-card">
+                        <div class="ana-val cyan" id="anaBalance">$10.00</div>
+                        <div class="ana-lbl">Account Balance</div>
+                    </div>
+                    <div class="ana-card">
+                        <div class="ana-val green" id="anaTodayPnL">+$0.00</div>
+                        <div class="ana-lbl">Today P&amp;L</div>
+                    </div>
+                    <div class="ana-card">
+                        <div class="ana-val yellow" id="anaTrades">0</div>
+                        <div class="ana-lbl">Today Trades</div>
+                    </div>
+                    <div class="ana-card">
+                        <div class="ana-val cyan" id="anaWinRate">0.0%</div>
+                        <div class="ana-lbl">Win Rate</div>
+                    </div>
+                    <div class="ana-card">
+                        <div class="ana-val green" id="anaAvgWin">$0.00</div>
+                        <div class="ana-lbl">Avg Win</div>
+                    </div>
+                    <div class="ana-card">
+                        <div class="ana-val pink" id="anaAvgLoss">$0.00</div>
+                        <div class="ana-lbl">Avg Loss</div>
+                    </div>
+                    <div class="ana-card">
+                        <div class="ana-val yellow" id="anaPF">0.00x</div>
+                        <div class="ana-lbl">Profit Factor</div>
+                    </div>
+                    <div class="ana-card">
+                        <div class="ana-val cyan" id="anaTotalTrades">0</div>
+                        <div class="ana-lbl">Total Trades</div>
+                    </div>
+                    <div class="ana-card">
+                        <div class="ana-val pink" id="anaConsecLoss">0</div>
+                        <div class="ana-lbl">Consec. Losses</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row" style="margin-top:0">
+                <div class="col">
+                    <div class="card">
+                        <div class="card-title"><span class="dot" style="background:var(--green)"></span>MATHEMATICAL MODEL</div>
+                        <div class="risk-row">
+                            <span class="risk-label">Strategy</span>
+                            <span class="risk-val">1% SL / 4% TP</span>
+                        </div>
+                        <div class="risk-row">
+                            <span class="risk-label">Risk:Reward Ratio</span>
+                            <span class="risk-val green">1:4 (EXCEPTIONAL)</span>
+                        </div>
+                        <div class="risk-row">
+                            <span class="risk-label">Breakeven Win Rate</span>
+                            <span class="risk-val">Only 25%</span>
+                        </div>
+                        <div class="risk-row">
+                            <span class="risk-label">Target Win Rate</span>
+                            <span class="risk-val green">50–65%</span>
+                        </div>
+                        <div class="risk-row">
+                            <span class="risk-label">Expected 10-trade profit (50%WR)</span>
+                            <span class="risk-val green">+15%</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="card">
+                        <div class="card-title"><span class="dot" style="background:var(--cyan)"></span>AI LEARNING STATUS</div>
+                        <div class="risk-row">
+                            <span class="risk-label">Current Phase</span>
+                            <span class="risk-val cyan" id="anaPhase">Baseline</span>
+                        </div>
+                        <div class="risk-row">
+                            <span class="risk-label">Accuracy (recent 30)</span>
+                            <span class="risk-val green" id="anaAccuracy">50.0%</span>
+                        </div>
+                        <div class="risk-row">
+                            <span class="risk-label">Market Regime</span>
+                            <span class="risk-val" id="anaRegime">Ranging</span>
+                        </div>
+                        <div class="risk-row">
+                            <span class="risk-label">Trades to Expert</span>
+                            <span class="risk-val yellow" id="anaTradesToExpert">200</span>
+                        </div>
+                        <div class="learn-bar-wrap" style="margin-top:8px">
+                            <div class="learn-bar" id="anaLearnBar" style="width:0%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div><!-- /tab-analytics -->
+
+        <!-- ── TAB: History ───────────────────────────── -->
+        <div id="tab-history" class="tab-content">
+            <div class="card">
+                <div class="card-title">
+                    <span class="dot" style="background:var(--yellow)"></span>
+                    TRADE JOURNAL
+                    <button id="exportBtn" class="btn-sm btn-gray" style="margin-left:auto">📥 Export CSV</button>
+                </div>
+                <div style="overflow-x:auto">
+                    <table class="history-table">
+                        <thead>
+                            <tr>
+                                <th>Time</th>
+                                <th>Direction</th>
+                                <th>Stake</th>
+                                <th>P&amp;L</th>
+                                <th>Confidence</th>
+                                <th>Balance</th>
+                            </tr>
+                        </thead>
+                        <tbody id="historyTbody">
+                            <tr><td colspan="6" style="text-align:center;color:var(--text-muted);padding:20px">No trades yet – start trading to see your history</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div><!-- /tab-history -->
+
+        <!-- ── TAB: Growth ────────────────────────────── -->
+        <div id="tab-growth" class="tab-content">
+            <div class="card">
+                <div class="card-title"><span class="dot" style="background:var(--green)"></span>COMPOUND GROWTH ENGINE</div>
+                <canvas id="growthChart"></canvas>
+
+                <div style="margin-top:10px">
+                    <div class="card-title" style="margin-bottom:6px">Growth Projections (55% WR)</div>
+                    <div class="projection-row">
+                        <div class="proj-item">
+                            <div class="p-val" id="projDay7">$--</div>
+                            <div class="p-lbl">7 Days</div>
+                        </div>
+                        <div class="proj-item">
+                            <div class="p-val" id="projDay14">$--</div>
+                            <div class="p-lbl">14 Days</div>
+                        </div>
+                        <div class="proj-item">
+                            <div class="p-val" id="projDay30">$--</div>
+                            <div class="p-lbl">30 Days</div>
+                        </div>
+                        <div class="proj-item">
+                            <div class="p-val" id="projDay90">$--</div>
+                            <div class="p-lbl">90 Days</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-title"><span class="dot"></span>COMPOUNDING MATH – HOW IT WORKS</div>
+                <div class="risk-row">
+                    <span class="risk-label">Win: +4% account</span>
+                    <span class="risk-val green">Compounding wins</span>
+                </div>
+                <div class="risk-row">
+                    <span class="risk-label">Loss: -1% account</span>
+                    <span class="risk-val red">Controlled losses</span>
+                </div>
+                <div class="risk-row">
+                    <span class="risk-label">5 wins, 5 losses (10 trades)</span>
+                    <span class="risk-val green">Net: +15%</span>
+                </div>
+                <div class="risk-row">
+                    <span class="risk-label">Position grows with balance</span>
+                    <span class="risk-val cyan">Exponential growth</span>
+                </div>
+                <div class="risk-warn" style="margin-top:8px">
+                    ⚠️ Projections are estimates based on 55% win rate. Past performance does not guarantee future results. All trading involves risk of loss.
+                </div>
+            </div>
+        </div><!-- /tab-growth -->
+
+    </main><!-- /main -->
+
+    <!-- ═══════════════════════════════════════════════════
+         FOOTER
+    ════════════════════════════════════════════════════ -->
+    <footer id="footer">
+        <span>Lazy Millionaire Market Dominator v2.0 | 1% SL / 4% TP Strategy</span>
+        <div class="footer-right">
+            <span id="footerTime">--:--:--</span>
+            <span>⚠️ Trading involves substantial risk of loss</span>
+        </div>
+    </footer>
+
+</div><!-- /app -->
+
+<!-- Notifications overlay -->
+<div id="notifications"></div>
+
+<script src="script.js"></script>
+<script>
+    // Footer clock
+    setInterval(() => {
+        const el = document.getElementById('footerTime');
+        if (el) el.textContent = new Date().toLocaleTimeString();
+    }, 1000);
+
+    // Auto-update net P&L displays
+    setInterval(() => {
+        const s = window.state;
+        if (!s) return;
+        const total = s.wins + s.losses;
+        const wr = total > 0 ? s.wins/total : 0;
+
+        const set = (id,v) => { const el=document.getElementById(id); if(el) el.textContent=v; };
+        set('autoNetPnL', (s.dailyPnL>=0?'+':'')+fmt(s.dailyPnL));
+        set('autoProgressBar', '');  // handled in script
+        set('tiNetPnL',  (s.dailyPnL>=0?'+$':'-$')+fmt(Math.abs(s.dailyPnL)));
+        set('tiWinRate', (wr*100).toFixed(1)+'%');
+        set('tiTotal',   '$'+fmt(s.balance));
+        set('tiDuration', (typeof CFG!=='undefined'?CFG.TRADE_DURATION:15)+'s');
+        set('anaAccuracy', s.ai ? (s.ai.currentAccuracy*100).toFixed(1)+'%' : '50.0%');
+        set('anaRegime', s.marketRegime ? s.marketRegime[0].toUpperCase()+s.marketRegime.slice(1) : 'Range');
+        set('anaTradesToExpert', s.ai ? Math.max(0, 200-s.ai.totalTrades) : 200);
+        const anaBar = document.getElementById('anaLearnBar');
+        if (anaBar && s.ai) anaBar.style.width = Math.min(100,(s.ai.totalTrades/200)*100)+'%';
+
+        // Auto-progress bar
+        const apb = document.getElementById('autoProgressBar');
+        if (apb && s.cooldownLeft !== undefined) {
+            apb.style.width = s.cooldownLeft > 0 ? (((30-s.cooldownLeft)/30)*100)+'%' : (s.autoRunning?'100%':'0%');
+        }
+    }, 500);
+</script>
 </body>
 </html>
