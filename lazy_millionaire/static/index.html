@@ -3,49 +3,65 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hedging Trading Platform</title>
+    <title>Lazy Millionaire Hedging Trading Platform</title>
     <style>
         body {
             font-family: Arial, sans-serif;
-            background: rgba(255, 255, 255, 0.1);
+            margin: 0;
+            padding: 0;
+            background: rgba(255, 255, 255, 0.9);
             backdrop-filter: blur(10px);
-            color: #fff;
-            padding: 20px;
+            color: #333;
         }
         .container {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 20px;
+            padding: 20px;
+        }
+        .trades-display, .trade-buttons, .profit-tracking, .theme-selector, .admin-panel {
             background: rgba(255, 255, 255, 0.2);
             border-radius: 10px;
             padding: 20px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
         }
         h1 {
-            color: #4CAF50;
+            text-align: center;
         }
-        .trade-button {
-            padding: 10px 20px;
-            margin: 10px;
+        button {
+            padding: 10px;
+            margin: 5px;
             border: none;
             border-radius: 5px;
             cursor: pointer;
-            transition: background-color 0.3s;
         }
-        .up {
-            background-color: rgba(76, 175, 80, 0.7);
-        }
-        .down {
-            background-color: rgba(244, 67, 54, 0.7);
-        }
-        .trade-button:hover {
-            opacity: 0.8;
-        }
+        .up { background-color: #4CAF50; color: white; }
+        .down { background-color: #F44336; color: white; }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>Hedging Trading Platform</h1>
-        <p>Simultaneous Up/Down Trades</p>
-        <button class="trade-button up">Up Trade</button>
-        <button class="trade-button down">Down Trade</button>
+        <div class="trades-display">
+            <h1>Real-time Hedging Trades</h1>
+            <!-- Display trades here -->
+        </div>
+        <div class="trade-buttons">
+            <h2>UP/DOWN Trade Buttons</h2>
+            <button class="up">UP</button>
+            <button class="down">DOWN</button>
+        </div>
+        <div class="profit-tracking">
+            <h2>Profit Tracking</h2>
+            <!-- Show profit tracking here -->
+        </div>
+        <div class="theme-selector">
+            <h2>Theme Selector</h2>
+            <!-- Add theme selector options here -->
+        </div>
+        <div class="admin-panel">
+            <h2>Admin Panel</h2>
+            <!-- Admin functionalities here -->
+        </div>
     </div>
 </body>
 </html>
