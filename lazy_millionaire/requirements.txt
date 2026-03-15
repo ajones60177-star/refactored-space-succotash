@@ -1,0 +1,8 @@
+FastAPI
+uvicorn
+pydantic
+aiohttp
+websockets
+sqlalchemy
+# Additional trading dependencies
+# add your trading dependencies here
