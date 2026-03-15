@@ -3,6 +3,28 @@
 
 'use strict';
 
+// ===== CONFIGURATION CONSTANTS =====
+const PAYOUT_MULTIPLIER = 0.97;          // 97% payout rate (3% platform fee)
+const EXPECTED_RETURN_MULTIPLIER = 1.97; // stake + profit (1 + PAYOUT_MULTIPLIER)
+const DAILY_LOSS_LIMIT_PCT = 0.05;       // Stop trading if daily loss exceeds 5% of balance
+const MAX_CONSECUTIVE_LOSSES = 5;        // Pause AI after this many consecutive losses
+const LOSS_RESET_TIMEOUT_MS = 30000;     // Reset consecutive losses after 30s pause
+const MIN_TRADES_FOR_WINRATE_CHECK = 20; // Minimum trades before triggering win-rate guard
+const MIN_ACCEPTABLE_WINRATE = 0.45;     // Recalibrate AI if win rate falls below this
+const STRIKE_CLEANUP_DELAY_MS = 4000;    // Keep resolved strikes visible for 4s
+const TICKS_PER_CANDLE = 10;             // Simulated ticks per candler period
+const VOLATILITY_MIN = 10;              // Minimum volatility index value
+const VOLATILITY_MAX = 100;             // Maximum volatility index value
+const VOLATILITY_SWING_MULTIPLIER = 200; // Converts price swing % to volatility index
+
+// Stake sizing thresholds (confidence % → max stake)
+const STAKE_CONFIG = {
+  ultraHigh: { minConf: 85, maxStake: 2000, balancePct: 0.02, multiplier: 2 },
+  high:      { minConf: 75, maxStake: 1000, balancePct: 0.02, multiplier: 1.5 },
+  medium:    { minConf: 60, maxStake: 300,  balancePct: 0.02, multiplier: 1 },
+  low:       { minConf: 0,  maxStake: 100,  balancePct: 0.01, multiplier: 1 },
+};
+
 // ===== GLOBAL STATE =====
 const STATE = {
   // Market
@@ -140,7 +162,7 @@ function detectMarketRegime() {
     const max = Math.max(...prices);
     const min = Math.min(...prices);
     const swing = (max - min) / min * 100;
-    STATE.volatilityIndex = Math.min(100, Math.max(10, swing * 200));
+    STATE.volatilityIndex = Math.min(VOLATILITY_MAX, Math.max(VOLATILITY_MIN, swing * VOLATILITY_SWING_MULTIPLIER));
   }
 
   // Trend strength
@@ -287,10 +309,13 @@ function geneticOptimize() {
 
 // ===== DYNAMIC STAKE SIZING =====
 function getDynamicStake(conf) {
-  if (conf >= 85) return Math.min(2000, STATE.balance * 0.02 * 2);
-  if (conf >= 75) return Math.min(1000, STATE.balance * 0.02 * 1.5);
-  if (conf >= 60) return Math.min(300, STATE.balance * 0.02);
-  return Math.min(100, STATE.balance * 0.01);
+  if (conf >= STAKE_CONFIG.ultraHigh.minConf)
+    return Math.min(STAKE_CONFIG.ultraHigh.maxStake, STATE.balance * STAKE_CONFIG.ultraHigh.balancePct * STAKE_CONFIG.ultraHigh.multiplier);
+  if (conf >= STAKE_CONFIG.high.minConf)
+    return Math.min(STAKE_CONFIG.high.maxStake, STATE.balance * STAKE_CONFIG.high.balancePct * STAKE_CONFIG.high.multiplier);
+  if (conf >= STAKE_CONFIG.medium.minConf)
+    return Math.min(STAKE_CONFIG.medium.maxStake, STATE.balance * STAKE_CONFIG.medium.balancePct);
+  return Math.min(STAKE_CONFIG.low.maxStake, STATE.balance * STAKE_CONFIG.low.balancePct);
 }
 
 // ===== STAKE ADJUSTMENT =====
@@ -355,18 +380,18 @@ function executeAutoRound() {
   const mode = STATE.autoMode;
 
   // Risk management checks
-  if (STATE.dailyPnl <= -(STATE.balance * 0.05)) {
+  if (STATE.dailyPnl <= -(STATE.balance * DAILY_LOSS_LIMIT_PCT)) {
     stopAutoTrading('Daily loss limit reached!');
     return;
   }
-  if (STATE.consecutiveLosses >= 5) {
-    stopAutoTrading('5 consecutive losses — pausing AI to learn...');
-    setTimeout(() => { STATE.consecutiveLosses = 0; }, 30000);
+  if (STATE.consecutiveLosses >= MAX_CONSECUTIVE_LOSSES) {
+    stopAutoTrading(`${MAX_CONSECUTIVE_LOSSES} consecutive losses — pausing AI to learn...`);
+    setTimeout(() => { STATE.consecutiveLosses = 0; }, LOSS_RESET_TIMEOUT_MS);
     return;
   }
   const winRate = STATE.totalTrades > 10 ? STATE.wonTrades / STATE.totalTrades : 1;
-  if (STATE.totalTrades > 20 && winRate < 0.45) {
-    stopAutoTrading('Win rate below 45% — AI recalibrating...');
+  if (STATE.totalTrades > MIN_TRADES_FOR_WINRATE_CHECK && winRate < MIN_ACCEPTABLE_WINRATE) {
+    stopAutoTrading(`Win rate below ${Math.round(MIN_ACCEPTABLE_WINRATE * 100)}% — AI recalibrating...`);
     return;
   }
 
@@ -440,13 +465,13 @@ function checkStrikeResolutions() {
   });
 
   if (changed) {
-    // Cleanup old resolved strikes after 3s
+    // Cleanup old resolved strikes after STRIKE_CLEANUP_DELAY_MS
     setTimeout(() => {
       STATE.activeStrikes = STATE.activeStrikes.filter(s => {
-        return s.status === 'running' || (Date.now() - s.endTime) < 4000;
+        return s.status === 'running' || (Date.now() - s.endTime) < STRIKE_CLEANUP_DELAY_MS;
       });
       renderStrikes();
-    }, 3000);
+    }, STRIKE_CLEANUP_DELAY_MS - 1000);
     renderStrikes();
   }
 }
@@ -460,7 +485,7 @@ function resolveStrike(s) {
     won = price < s.barrier;
   }
 
-  const payout = won ? s.stake * 0.97 : 0;
+  const payout = won ? s.stake * PAYOUT_MULTIPLIER : 0;
   const pnl = won ? payout : -s.stake;
 
   s.status = won ? 'won' : 'lost';
@@ -677,10 +702,10 @@ function updatePredictionDisplay(patternS, volS, trendS, neuralS) {
 function updateTradeButtonInfo() {
   const hStake = parseFloat(document.getElementById('higherStake').value) || 100;
   const lStake = parseFloat(document.getElementById('lowerStake').value) || 100;
-  const hExpect = hStake * 1.97;
-  const lExpect = lStake * 1.97;
-  const hProfit = hStake * 0.97;
-  const lProfit = lStake * 0.97;
+  const hExpect = hStake * EXPECTED_RETURN_MULTIPLIER;
+  const lExpect = lStake * EXPECTED_RETURN_MULTIPLIER;
+  const hProfit = hStake * PAYOUT_MULTIPLIER;
+  const lProfit = lStake * PAYOUT_MULTIPLIER;
 
   document.getElementById('higherExpect').textContent = `Expect: $${hExpect.toFixed(2)}`;
   document.getElementById('higherProfit').textContent = `Profit: +$${hProfit.toFixed(2)}`;
@@ -1022,7 +1047,7 @@ function startTickSimulator() {
   if (tickInterval) clearInterval(tickInterval);
   tickInterval = setInterval(() => {
     simulateNextTick();
-  }, STATE.candlerSpeed * 1000 / 10); // ~10 ticks per candler period
+  }, STATE.candlerSpeed * 1000 / TICKS_PER_CANDLE);
 }
 
 function stopTickSimulator() {
