@@ -1,67 +1,495 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lazy Millionaire Hedging Trading Platform</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            background: rgba(255, 255, 255, 0.9);
-            backdrop-filter: blur(10px);
-            color: #333;
-        }
-        .container {
-            display: grid;
-            grid-template-columns: 1fr 1fr 1fr;
-            gap: 20px;
-            padding: 20px;
-        }
-        .trades-display, .trade-buttons, .profit-tracking, .theme-selector, .admin-panel {
-            background: rgba(255, 255, 255, 0.2);
-            border-radius: 10px;
-            padding: 20px;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-        }
-        h1 {
-            text-align: center;
-        }
-        button {
-            padding: 10px;
-            margin: 5px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-        .up { background-color: #4CAF50; color: white; }
-        .down { background-color: #F44336; color: white; }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GMilli AI — Lazy Millionaire Hybrid Trading System</title>
+<link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div class="container">
-        <div class="trades-display">
-            <h1>Real-time Hedging Trades</h1>
-            <!-- Display trades here -->
-        </div>
-        <div class="trade-buttons">
-            <h2>UP/DOWN Trade Buttons</h2>
-            <button class="up">UP</button>
-            <button class="down">DOWN</button>
-        </div>
-        <div class="profit-tracking">
-            <h2>Profit Tracking</h2>
-            <!-- Show profit tracking here -->
-        </div>
-        <div class="theme-selector">
-            <h2>Theme Selector</h2>
-            <!-- Add theme selector options here -->
-        </div>
-        <div class="admin-panel">
-            <h2>Admin Panel</h2>
-            <!-- Admin functionalities here -->
-        </div>
+<!-- ====== APP SHELL ====== -->
+<div class="app-wrap">
+
+  <!-- ===== SIDEBAR ===== -->
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <span class="brand-icon">⚡</span>
+      <span class="brand-text">GMilli <span class="brand-ai">AI</span></span>
     </div>
+
+    <div class="sidebar-section-label">STRATEGIES</div>
+
+    <div class="strategy-list" id="strategyList">
+      <div class="strategy-item active" data-strategy="hybrid">
+        <div class="strategy-info">
+          <span class="strategy-name">Hybrid</span>
+          <span class="strategy-desc">Predict if price will go Higher or Lower</span>
+          <div class="strategy-tags">
+            <span class="tag tag-ui">UI Edition Only</span>
+            <span class="tag tag-howto" onclick="showHowTo(event)">How to Use</span>
+          </div>
+        </div>
+        <label class="toggle-switch">
+          <input type="checkbox" checked onchange="toggleStrategy(this,'hybrid')">
+          <span class="slider"></span>
+        </label>
+      </div>
+
+      <div class="strategy-item" data-strategy="tradbot">
+        <div class="strategy-info">
+          <span class="strategy-name">TradBot</span>
+          <span class="strategy-desc">Matches / Differs Analysis</span>
+        </div>
+        <label class="toggle-switch">
+          <input type="checkbox" onchange="toggleStrategy(this,'tradbot')">
+          <span class="slider"></span>
+        </label>
+      </div>
+
+      <div class="strategy-item" data-strategy="millix">
+        <div class="strategy-info">
+          <span class="strategy-name">Milli X</span>
+          <span class="strategy-desc">Over / Under Analysis</span>
+        </div>
+        <label class="toggle-switch">
+          <input type="checkbox" onchange="toggleStrategy(this,'millix')">
+          <span class="slider"></span>
+        </label>
+      </div>
+
+      <div class="strategy-item" data-strategy="aidigit">
+        <div class="strategy-info">
+          <span class="strategy-name">AI Digit</span>
+          <span class="strategy-desc">Even / Odd digit analysis</span>
+        </div>
+        <label class="toggle-switch">
+          <input type="checkbox" onchange="toggleStrategy(this,'aidigit')">
+          <span class="slider"></span>
+        </label>
+      </div>
+
+      <div class="strategy-item" data-strategy="aipro">
+        <div class="strategy-info">
+          <span class="strategy-name">AI Pro</span>
+          <span class="strategy-desc">Professional Accumulator Trading</span>
+        </div>
+        <label class="toggle-switch">
+          <input type="checkbox" onchange="toggleStrategy(this,'aipro')">
+          <span class="slider"></span>
+        </label>
+      </div>
+
+      <div class="strategy-item admin-only" data-strategy="dualstrike">
+        <div class="strategy-info">
+          <span class="strategy-name">Dual Strike <span class="admin-tag">ADMIN</span></span>
+          <span class="strategy-desc">Simultaneous Matches/Differs & Over/Under</span>
+        </div>
+        <label class="toggle-switch">
+          <input type="checkbox" disabled>
+          <span class="slider"></span>
+        </label>
+      </div>
+
+      <div class="strategy-item" data-strategy="ai11rr">
+        <div class="strategy-info">
+          <span class="strategy-name">AI 1:1 RR</span>
+          <span class="strategy-desc">Rise / Fall Analysis</span>
+        </div>
+        <label class="toggle-switch">
+          <input type="checkbox" onchange="toggleStrategy(this,'ai11rr')">
+          <span class="slider"></span>
+        </label>
+      </div>
+    </div>
+
+    <!-- Deriv Connection -->
+    <div class="sidebar-section-label">DERIV API</div>
+    <div class="deriv-panel">
+      <div class="deriv-status" id="derivStatus">
+        <span class="status-dot offline"></span>
+        <span id="derivStatusText">Offline</span>
+      </div>
+      <input type="text" id="derivToken" class="deriv-input" placeholder="Deriv API Token">
+      <button class="btn-connect" onclick="connectDeriv()">Connect</button>
+      <label class="paper-toggle">
+        <input type="checkbox" id="paperMode" checked onchange="togglePaperMode(this)">
+        <span>Paper Trading Mode</span>
+      </label>
+    </div>
+
+    <!-- AI Level -->
+    <div class="sidebar-section-label">AI STATUS</div>
+    <div class="ai-level-panel">
+      <div class="ai-level-label">AI Level: <span id="aiLevelName">Rookie</span></div>
+      <div class="ai-xp-bar"><div class="ai-xp-fill" id="aiXpFill" style="width:10%"></div></div>
+      <div class="ai-stats-mini">
+        <span>Trades: <b id="sidebarTrades">0</b></span>
+        <span>Win: <b id="sidebarWinRate">0%</b></span>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ===== MAIN CONTENT ===== -->
+  <div class="main-content">
+
+    <!-- HEADER -->
+    <header class="top-header">
+      <div class="header-left">
+        <span class="header-title">GMilli AI <span class="header-hybrid">Hybrid</span></span>
+        <span class="live-badge" id="liveBadge">● LIVE</span>
+      </div>
+      <div class="header-center">
+        <select class="market-select" id="marketSelect" onchange="changeMarket()">
+          <option value="R_100">Volatility 100 Index</option>
+          <option value="R_75">Volatility 75 Index</option>
+          <option value="R_50">Volatility 50 Index</option>
+          <option value="R_25">Volatility 25 Index</option>
+          <option value="R_10">Volatility 10 Index</option>
+          <option value="1HZ100V">Volatility 100 (1s)</option>
+          <option value="1HZ75V">Volatility 75 (1s)</option>
+          <option value="1HZ50V">Volatility 50 (1s)</option>
+        </select>
+        <span class="candler-label">Candler: <select id="candlerSpeed" class="candler-select" onchange="updateCandlerSpeed()">
+          <option value="5">5 Seconds</option>
+          <option value="10" selected>10 Seconds</option>
+          <option value="15">15 Seconds</option>
+          <option value="30">30 Seconds</option>
+        </select></span>
+      </div>
+      <div class="header-right">
+        <div class="balance-display">
+          <span class="balance-label">Balance</span>
+          <span class="balance-value" id="balanceDisplay">$10,000.00</span>
+        </div>
+        <div class="daily-pnl" id="dailyPnl">Day: <span class="pnl-value positive" id="dailyPnlValue">+$0.00</span></div>
+      </div>
+    </header>
+
+    <!-- MAIN GRID -->
+    <div class="main-grid">
+
+      <!-- LEFT COLUMN: Chart + Analysis -->
+      <div class="left-col">
+
+        <!-- Price Chart -->
+        <div class="card chart-card">
+          <div class="card-head">
+            <span>📊 Market Analysis</span>
+            <div class="chart-stats">
+              <span class="stat-item">Higher: <b id="higherPct">50%</b></span>
+              <span class="stat-item">Lower: <b id="lowerPct">50%</b></span>
+              <span class="stat-item">Ticks: <b id="tickCount">0</b></span>
+            </div>
+          </div>
+          <div class="price-display-row">
+            <div class="current-price-box">
+              <span class="price-label">Current Price</span>
+              <span class="price-value" id="currentPrice">---</span>
+              <span class="price-change" id="priceChange">+0.00</span>
+            </div>
+            <div class="barrier-display">
+              <div class="barrier-row">
+                <span class="barrier-up-label">▲ HIGHER</span>
+                <span class="barrier-val" id="higherBarrierDisplay">---</span>
+              </div>
+              <div class="barrier-row">
+                <span class="barrier-down-label">▼ LOWER</span>
+                <span class="barrier-val" id="lowerBarrierDisplay">---</span>
+              </div>
+            </div>
+          </div>
+          <canvas id="priceChart" width="800" height="180"></canvas>
+          <div class="volatility-row">
+            <span class="vol-label">Volatility: <b id="volIndex">--</b></span>
+            <span class="trend-label">Trend: <b id="trendStrength">Neutral</b></span>
+            <span class="regime-label">Regime: <b id="marketRegime">Ranging</b></span>
+          </div>
+        </div>
+
+        <!-- Recent Moves Grid -->
+        <div class="card moves-card">
+          <div class="card-head">
+            <span>📈 Recent Moves</span>
+            <span class="win-rate-badge" id="winRateBadge">Win Rate: 0%</span>
+          </div>
+          <div class="moves-grid" id="movesGrid"></div>
+        </div>
+
+        <!-- Strikes Results -->
+        <div class="card strikes-card">
+          <div class="card-head">
+            <span>⚡ 4 Strikes — Active Rounds</span>
+            <span id="strikesActiveCount" class="active-count">0 Active</span>
+          </div>
+          <div id="strikesContainer" class="strikes-container">
+            <div class="no-strikes">No active strikes. Click HIGHER, LOWER, or HIGHER &amp; LOWER to trade.</div>
+          </div>
+        </div>
+
+      </div><!-- /left-col -->
+
+      <!-- RIGHT COLUMN: Prediction + Controls -->
+      <div class="right-col">
+
+        <!-- Barrier Settings -->
+        <div class="card barrier-card">
+          <div class="card-head">⚙️ Barrier Settings</div>
+          <div class="barrier-settings">
+            <div class="barrier-row-inputs">
+              <div class="barrier-group">
+                <label>Higher Stake (UP)</label>
+                <div class="stake-control">
+                  <button onclick="adjustStake('higher',-10)">−</button>
+                  <input type="number" id="higherStake" value="100" min="1" onchange="updatePrediction()">
+                  <button onclick="adjustStake('higher',10)">+</button>
+                </div>
+              </div>
+              <div class="barrier-group">
+                <label>Lower Stake (DOWN)</label>
+                <div class="stake-control">
+                  <button onclick="adjustStake('lower',-10)">−</button>
+                  <input type="number" id="lowerStake" value="100" min="1" onchange="updatePrediction()">
+                  <button onclick="adjustStake('lower',10)">+</button>
+                </div>
+              </div>
+            </div>
+            <div class="barrier-type-row">
+              <span class="barrier-type-label">Barrier Type:</span>
+              <label class="radio-label"><input type="radio" name="barrierType" value="offset" checked onchange="updateBarriers()"> Offset</label>
+              <label class="radio-label"><input type="radio" name="barrierType" value="absolute" onchange="updateBarriers()"> Absolute</label>
+            </div>
+            <div class="barrier-offset-row">
+              <div class="offset-group">
+                <label>Higher Barrier</label>
+                <div class="stake-control">
+                  <button onclick="adjustBarrier('higher',-0.01)">−</button>
+                  <input type="number" id="higherBarrierOffset" value="0.12" step="0.01" onchange="updateBarriers()">
+                  <button onclick="adjustBarrier('higher',0.01)">+</button>
+                </div>
+              </div>
+              <div class="offset-group">
+                <label>Lower Barrier</label>
+                <div class="stake-control">
+                  <button onclick="adjustBarrier('lower',-0.01)">−</button>
+                  <input type="number" id="lowerBarrierOffset" value="0.12" step="0.01" onchange="updateBarriers()">
+                  <button onclick="adjustBarrier('lower',0.01)">+</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- AI Prediction -->
+        <div class="card prediction-card">
+          <div class="card-head">
+            <span>🤖 AI Prediction Engine</span>
+            <span class="ai-badge" id="aiBadge">ANALYZING...</span>
+          </div>
+          <div class="confidence-row">
+            <div class="confidence-circle">
+              <svg viewBox="0 0 100 100" class="conf-svg">
+                <circle cx="50" cy="50" r="42" class="conf-bg"/>
+                <circle cx="50" cy="50" r="42" class="conf-fill" id="confCircle" stroke-dasharray="0 264"/>
+              </svg>
+              <div class="conf-text">
+                <span id="confPct">0%</span>
+                <span class="conf-label">CONF.</span>
+              </div>
+            </div>
+            <div class="prediction-info">
+              <div class="pred-direction" id="predDirection">—</div>
+              <div class="pred-explanation" id="predExplanation">Initializing AI engine...</div>
+              <div class="pred-factors">
+                <div class="factor-row"><span>Pattern</span><div class="factor-bar"><div class="factor-fill" id="factorPattern" style="width:0%"></div></div></div>
+                <div class="factor-row"><span>Volatility</span><div class="factor-bar"><div class="factor-fill" id="factorVol" style="width:0%"></div></div></div>
+                <div class="factor-row"><span>Trend</span><div class="factor-bar"><div class="factor-fill" id="factorTrend" style="width:0%"></div></div></div>
+                <div class="factor-row"><span>Neural</span><div class="factor-bar"><div class="factor-fill" id="factorNeural" style="width:0%"></div></div></div>
+              </div>
+            </div>
+          </div>
+          <div class="conf-bar-wrap">
+            <div class="conf-bar" id="confBar" style="width:0%"></div>
+          </div>
+        </div>
+
+        <!-- Trade Buttons -->
+        <div class="card trade-buttons-card">
+          <div class="card-head">�� Execute Trade</div>
+          <div class="trade-btns-row">
+            <button class="btn-higher" onclick="executeTrade('higher')">
+              <span class="btn-icon">▲</span>
+              <span class="btn-main">HIGHER</span>
+              <span class="btn-sub" id="higherExpect">Expect: $0.00</span>
+              <span class="btn-profit" id="higherProfit">Profit: +$0.00</span>
+            </button>
+            <button class="btn-lower" onclick="executeTrade('lower')">
+              <span class="btn-icon">▼</span>
+              <span class="btn-main">LOWER</span>
+              <span class="btn-sub" id="lowerExpect">Expect: $0.00</span>
+              <span class="btn-profit" id="lowerProfit">Profit: +$0.00</span>
+            </button>
+          </div>
+          <button class="btn-both" onclick="executeTrade('both')">
+            <span>⚡ HIGHER &amp; LOWER</span>
+            <div class="btn-both-info">
+              <span id="bothExpect">Expect: $0.00</span>
+              <span id="bothGuaranteed">Guaranteed Payout: $0.00</span>
+            </div>
+          </button>
+
+          <!-- 4 Strikes Selector -->
+          <div class="strikes-stakes-panel">
+            <div class="strikes-stakes-head">⚡ All 4 Trades Stakes</div>
+            <div class="strikes-grid-2x2">
+              <div class="strike-cell higher">
+                <span class="strike-label">Higher 1 (H)</span>
+                <input type="number" class="strike-input" id="s1" value="0.35" step="0.01" min="0.01">
+              </div>
+              <div class="strike-cell lower">
+                <span class="strike-label">Lower 1 (L)</span>
+                <input type="number" class="strike-input" id="s2" value="0.35" step="0.01" min="0.01">
+              </div>
+              <div class="strike-cell lower">
+                <span class="strike-label">Lower 2 (L)</span>
+                <input type="number" class="strike-input" id="s3" value="0.35" step="0.01" min="0.01">
+              </div>
+              <div class="strike-cell higher">
+                <span class="strike-label">Higher 2 (H)</span>
+                <input type="number" class="strike-input" id="s4" value="0.35" step="0.01" min="0.01">
+              </div>
+            </div>
+            <div class="duration-row">
+              <span>⏱️ Duration:</span>
+              <select id="tradeDuration" class="dur-select">
+                <option value="5">5 Seconds</option>
+                <option value="10" selected>10 Seconds</option>
+                <option value="15">15 Seconds</option>
+                <option value="30">30 Seconds</option>
+                <option value="60">60 Seconds</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- Auto Trading -->
+        <div class="card auto-card">
+          <div class="card-head">
+            <span>🤖 Auto Trading</span>
+            <div class="auto-toggle-wrap">
+              <label class="toggle-switch">
+                <input type="checkbox" id="autoTradingToggle" onchange="toggleAutoTrading(this)">
+                <span class="slider"></span>
+              </label>
+              <span class="auto-status" id="autoStatus">OFF</span>
+            </div>
+          </div>
+          <div class="auto-mode-row">
+            <label>Mode:</label>
+            <select id="autoMode" class="auto-select">
+              <option value="hml">HML (2)</option>
+              <option value="all4">All 4</option>
+              <option value="p5">5%</option>
+              <option value="p10">10%</option>
+              <option value="p15">15%</option>
+              <option value="p20">20%</option>
+              <option value="custom">Custom</option>
+            </select>
+          </div>
+          <div class="auto-info-row" id="autoActiveLabel" style="display:none">
+            <span class="hml-badge" id="autoModeLabel">HML ACTIVE</span>
+          </div>
+          <div class="auto-stats-row">
+            <div class="auto-stat">
+              <span class="auto-stat-label">⏱️ Cooldown</span>
+              <span class="auto-stat-val" id="cooldownTimer">--s</span>
+            </div>
+            <div class="auto-stat">
+              <span class="auto-stat-label">⭕ Rounds</span>
+              <span class="auto-stat-val" id="roundCounter">0</span>
+            </div>
+          </div>
+          <div class="auto-progress-wrap" id="autoProgressWrap" style="display:none">
+            <div class="auto-progress-bar">
+              <div class="auto-progress-fill" id="autoProgressFill" style="width:0%"></div>
+            </div>
+            <div class="auto-round-result" id="autoRoundResult">Waiting for round...</div>
+          </div>
+        </div>
+
+        <!-- Quick Stats -->
+        <div class="card stats-card">
+          <div class="card-head">📊 Session Stats</div>
+          <div class="stats-grid">
+            <div class="stat-box">
+              <div class="stat-label">Net Profit</div>
+              <div class="stat-val positive" id="netProfit">$0.00</div>
+            </div>
+            <div class="stat-box">
+              <div class="stat-label">Win Rate</div>
+              <div class="stat-val" id="sessionWinRate">0%</div>
+            </div>
+            <div class="stat-box">
+              <div class="stat-label">H: Stake</div>
+              <div class="stat-val cyan" id="statHStake">$100</div>
+            </div>
+            <div class="stat-box">
+              <div class="stat-label">Total Trades</div>
+              <div class="stat-val" id="totalTradesDisplay">0</div>
+            </div>
+          </div>
+          <div class="trade-history-btn-row">
+            <button class="btn-history" onclick="toggleHistory()">📜 Trade History</button>
+            <span class="history-profit" id="historyProfit">$0.00 USD</span>
+            <span class="history-winrate" id="historyWinRateBadge">0.0% Win Rate</span>
+          </div>
+          <!-- Mini profit chart -->
+          <canvas id="profitChart" width="320" height="60"></canvas>
+        </div>
+
+      </div><!-- /right-col -->
+    </div><!-- /main-grid -->
+
+    <!-- Trade History Panel -->
+    <div class="history-panel" id="historyPanel" style="display:none">
+      <div class="history-head">
+        <span>📜 Trade History</span>
+        <button class="btn-close-history" onclick="toggleHistory()">✕</button>
+      </div>
+      <div class="history-table-wrap">
+        <table class="history-table">
+          <thead>
+            <tr><th>#</th><th>Time</th><th>Market</th><th>Direction</th><th>Stake</th><th>Result</th><th>P&amp;L</th><th>AI Conf.</th></tr>
+          </thead>
+          <tbody id="historyTableBody">
+            <tr><td colspan="8" style="text-align:center;color:var(--muted)">No trades yet.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </div><!-- /main-content -->
+</div><!-- /app-wrap -->
+
+<!-- How-To Modal -->
+<div class="modal-overlay" id="howToModal" style="display:none">
+  <div class="modal-box">
+    <div class="modal-head">How to Use GMilli AI Hybrid</div>
+    <div class="modal-body">
+      <ol>
+        <li>Connect your Deriv API token or use Paper Trading mode.</li>
+        <li>Select a market (Volatility 100 recommended).</li>
+        <li>Watch the AI Prediction Engine — it shows direction &amp; confidence %.</li>
+        <li>Click <b class="green-text">HIGHER</b> or <b class="pink-text">LOWER</b> based on the prediction.</li>
+        <li>Or click <b class="cyan-text">HIGHER &amp; LOWER</b> to hedge both directions simultaneously.</li>
+        <li>Enable <b>Auto Trading</b> to let the AI execute trades automatically.</li>
+        <li>Use <b>HML mode</b> for 2-strike hedging, or <b>All 4</b> for all 4 simultaneous strikes.</li>
+        <li>Monitor your win rate, P&amp;L, and let the AI learn &amp; adapt over time.</li>
+      </ol>
+    </div>
+    <button class="modal-close" onclick="closeModal('howToModal')">Got it!</button>
+  </div>
+</div>
+
+<script src="script.js"></script>
 </body>
 </html>
