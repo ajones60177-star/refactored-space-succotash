@@ -261,17 +261,22 @@ def _detect_pattern(ticks: List[float]) -> Dict[str, Any]:
 
 
 def _calculate_position(mode: str, balance: float, confidence: float, volatility: float) -> float:
-    """Position sizing per mode spec."""
-    base_risk = balance * LOSS_PCT
-    cfg = MODES[mode]
-    deriv_min = DERIV_MIN_TRADE
+    """
+    Position sizing per mode spec.
+
+    The formula produces a risk-adjusted fraction of balance.  For small accounts
+    (e.g. $10) the raw calculation is often below Deriv's $0.35 minimum stake, so
+    max(position, DERIV_MIN_TRADE) ensures we always submit a valid order while
+    respecting the mode's cap.
+    """
+    base_risk = balance * LOSS_PCT  # 1% of balance
 
     if mode == "balanced":
         if confidence >= 55:
-            position = base_risk * 0.25
+            position = base_risk * 0.25  # very conservative fraction
         else:
             return 0.0
-        position = min(position, 0.50)
+        position = min(position, 0.50)   # hard cap per spec
 
     elif mode == "aggressive":
         if confidence >= 70:
@@ -284,7 +289,7 @@ def _calculate_position(mode: str, balance: float, confidence: float, volatility
             position *= 1.5
         elif volatility < 40:
             position *= 0.75
-        position = min(position, 1.00)
+        position = min(position, 1.00)   # hard cap per spec
 
     else:  # maximum
         if confidence >= 80:
@@ -301,9 +306,10 @@ def _calculate_position(mode: str, balance: float, confidence: float, volatility
             position *= 1.5
         elif volatility < 30:
             position *= 0.50
-        position = min(position, 5.00)
+        position = min(position, 5.00)   # hard cap per spec
 
-    return max(position, deriv_min)
+    # Always meet Deriv's minimum stake; return 0 only if mode threshold not met (above)
+    return max(position, DERIV_MIN_TRADE)
 
 
 def _recommend_mode(volatility: float, trend_strength: float,
@@ -565,13 +571,20 @@ async def execute_trade(req: TradeRequest):
                     "basis": "stake",
                 },
             }
-            res = await _deriv_send_recv(trade_params)
-            if "error" in res:
-                return {"success": False, "error": res["error"]["message"]}
-            contract_id = res.get("buy", {}).get("contract_id")
-            pnl_calc = res.get("buy", {}).get("pnl", None)
-            won = (pnl_calc is not None and pnl_calc > 0)
+            buy_res = await _deriv_send_recv(trade_params)
+            if "error" in buy_res:
+                return {"success": False, "error": buy_res["error"]["message"]}
+            # Deriv binary options settle asynchronously; wait for contract result
+            contract_id = buy_res.get("buy", {}).get("contract_id")
+            if contract_id:
+                await asyncio.sleep(12)  # wait for 10-tick contract to expire
+                settle_res = await _deriv_send_recv({"proposal_open_contract": 1, "contract_id": contract_id})
+                profit = settle_res.get("proposal_open_contract", {}).get("profit", None)
+                won = (profit is not None and float(profit) > 0)
+            else:
+                won = _simulate_trade_result(direction, ticks, mode)
         except Exception as e:
+            logger.warning(f"Deriv trade error – using simulation: {e}")
             won = _simulate_trade_result(direction, ticks, mode)
     else:
         won = _simulate_trade_result(direction, ticks, mode)

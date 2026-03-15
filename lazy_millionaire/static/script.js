@@ -248,10 +248,7 @@ function prependTradeRow(t) {
     const tbody = document.getElementById('tradeLogBody');
     const emptyRow = tbody.querySelector('.empty-row');
     if (emptyRow) emptyRow.parentElement.remove();
-    const tr = document.createElement('tr');
-    tr.innerHTML = tradeRowHTML(t);
-    tbody.prepend(tr.firstElementChild || tr);
-    tbody.innerHTML = tradeRowHTML(t) + tbody.innerHTML;
+    tbody.insertAdjacentHTML('afterbegin', tradeRowHTML(t));
     // Keep max 100 rows
     while (tbody.children.length > 100) tbody.removeChild(tbody.lastChild);
 }
