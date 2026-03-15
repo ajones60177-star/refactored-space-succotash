@@ -1,8 +1,10 @@
-FastAPI
-uvicorn
+fastapi
+uvicorn[standard]
 pydantic
 aiohttp
 websockets
 sqlalchemy
-# Additional trading dependencies
-# add your trading dependencies here
+python-jose[cryptography]
+passlib[bcrypt]
+python-multipart
+numpy

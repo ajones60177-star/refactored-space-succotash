@@ -3,65 +3,244 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lazy Millionaire Hedging Trading Platform</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            background: rgba(255, 255, 255, 0.9);
-            backdrop-filter: blur(10px);
-            color: #333;
-        }
-        .container {
-            display: grid;
-            grid-template-columns: 1fr 1fr 1fr;
-            gap: 20px;
-            padding: 20px;
-        }
-        .trades-display, .trade-buttons, .profit-tracking, .theme-selector, .admin-panel {
-            background: rgba(255, 255, 255, 0.2);
-            border-radius: 10px;
-            padding: 20px;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-        }
-        h1 {
-            text-align: center;
-        }
-        button {
-            padding: 10px;
-            margin: 5px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-        .up { background-color: #4CAF50; color: white; }
-        .down { background-color: #F44336; color: white; }
-    </style>
+    <title>Lazy Millionaire Market Dominator</title>
+    <link rel="stylesheet" href="/static/style.css">
 </head>
 <body>
-    <div class="container">
-        <div class="trades-display">
-            <h1>Real-time Hedging Trades</h1>
-            <!-- Display trades here -->
-        </div>
-        <div class="trade-buttons">
-            <h2>UP/DOWN Trade Buttons</h2>
-            <button class="up">UP</button>
-            <button class="down">DOWN</button>
-        </div>
-        <div class="profit-tracking">
-            <h2>Profit Tracking</h2>
-            <!-- Show profit tracking here -->
-        </div>
-        <div class="theme-selector">
-            <h2>Theme Selector</h2>
-            <!-- Add theme selector options here -->
-        </div>
-        <div class="admin-panel">
-            <h2>Admin Panel</h2>
-            <!-- Admin functionalities here -->
+<!-- ═══════════════════════ HEADER ═══════════════════════ -->
+<header class="header">
+    <div class="header-left">
+        <span class="logo-icon">💰</span>
+        <span class="logo-text">MARKET DOMINATOR</span>
+        <span class="logo-sub">Tri-Mode AI Trading System</span>
+    </div>
+    <div class="header-center">
+        <div class="live-badge" id="liveStatus">
+            <span class="dot offline"></span>
+            <span id="statusText">OFFLINE</span>
         </div>
     </div>
+    <div class="header-right">
+        <div class="balance-display">
+            <span class="balance-label">BALANCE</span>
+            <span class="balance-value" id="balanceDisplay">$10.00</span>
+            <span class="balance-currency" id="currencyDisplay">USD</span>
+        </div>
+    </div>
+</header>
+
+<!-- ═══════════════════════ MAIN LAYOUT ═══════════════════════ -->
+<div class="main-layout">
+
+    <!-- ═══ LEFT SIDEBAR ═══ -->
+    <aside class="sidebar">
+        <div class="sidebar-section">
+            <div class="section-title">TRADING MODE</div>
+
+            <!-- Mode buttons -->
+            <button class="mode-btn mode-balanced active" id="btnBalanced" onclick="switchMode('balanced')">
+                <span class="mode-icon">⚖️</span>
+                <span class="mode-name">BALANCED</span>
+                <span class="mode-wr">60% WR</span>
+                <span class="mode-risk">⭐⭐ LOW</span>
+            </button>
+
+            <button class="mode-btn mode-aggressive" id="btnAggressive" onclick="switchMode('aggressive')">
+                <span class="mode-icon">🚀</span>
+                <span class="mode-name">AGGRESSIVE</span>
+                <span class="mode-wr">70% WR</span>
+                <span class="mode-risk">⭐⭐⭐ MED</span>
+            </button>
+
+            <button class="mode-btn mode-maximum" id="btnMaximum" onclick="switchMode('maximum')">
+                <span class="mode-icon">💥</span>
+                <span class="mode-name">MAXIMUM</span>
+                <span class="mode-wr">75%+ WR</span>
+                <span class="mode-risk">⭐⭐⭐⭐⭐ HIGH</span>
+            </button>
+
+            <div class="auto-switch-row">
+                <label class="toggle-label">
+                    <input type="checkbox" id="autoSwitchToggle" onchange="toggleAutoSwitch()">
+                    <span class="toggle-slider"></span>
+                    AUTO-SWITCH
+                </label>
+            </div>
+        </div>
+
+        <!-- Recommendation box -->
+        <div class="sidebar-section">
+            <div class="section-title">🤖 AI RECOMMENDATION</div>
+            <div class="recommendation-box" id="recommendationBox">
+                <div class="rec-mode" id="recMode">BALANCED</div>
+                <div class="rec-reason" id="recReason">Analysing market…</div>
+                <button class="btn-apply-rec" onclick="applyRecommendation()">APPLY ✓</button>
+            </div>
+        </div>
+
+        <!-- Daily stats -->
+        <div class="sidebar-section">
+            <div class="section-title">TODAY'S RESULTS</div>
+            <div class="stat-row"><span>P&amp;L</span><span class="stat-val pnl-val" id="dailyPnl">$0.00</span></div>
+            <div class="stat-row"><span>Trades</span><span class="stat-val" id="tradesToday">0</span></div>
+            <div class="stat-row"><span>Win Rate (10)</span><span class="stat-val" id="wr10">—</span></div>
+            <div class="stat-row"><span>Win Rate (50)</span><span class="stat-val" id="wr50">—</span></div>
+            <div class="stat-row"><span>Streak</span><span class="stat-val" id="streak">—</span></div>
+        </div>
+
+        <!-- Deriv connect -->
+        <div class="sidebar-section">
+            <div class="section-title">DERIV CONNECTION</div>
+            <input type="password" id="derivToken" placeholder="Paste Deriv API Token" class="token-input">
+            <button class="btn-connect" id="btnConnect" onclick="connectDeriv()">🔗 CONNECT</button>
+            <button class="btn-disconnect hidden" id="btnDisconnect" onclick="disconnectDeriv()">✖ DISCONNECT</button>
+        </div>
+    </aside>
+
+    <!-- ═══ MAIN CONTENT ═══ -->
+    <main class="content">
+
+        <!-- Market analysis bar -->
+        <div class="market-bar">
+            <div class="market-item">
+                <span class="market-label">TREND</span>
+                <span class="market-value" id="trendLabel">RANGING</span>
+            </div>
+            <div class="market-item">
+                <span class="market-label">VOLATILITY</span>
+                <div class="vol-bar-wrap">
+                    <div class="vol-bar" id="volBar" style="width:50%"></div>
+                </div>
+                <span class="market-value" id="volLabel">50 MEDIUM</span>
+            </div>
+            <div class="market-item">
+                <span class="market-label">PATTERN</span>
+                <span class="market-value" id="patternLabel">—</span>
+            </div>
+            <div class="market-item">
+                <span class="market-label">CONFIDENCE</span>
+                <span class="market-value" id="confidenceLabel">—</span>
+            </div>
+            <div class="market-item">
+                <span class="market-label">CURRENT MODE</span>
+                <span class="market-value mode-indicator" id="activeModeLabel">BALANCED</span>
+            </div>
+        </div>
+
+        <!-- ═══ MODE STATS CARDS ═══ -->
+        <div class="mode-cards">
+            <!-- Balanced card -->
+            <div class="mode-card card-balanced" id="cardBalanced">
+                <div class="card-header">
+                    <span class="card-title">⚖️ BALANCED MODE</span>
+                    <span class="card-active-badge hidden" id="badgeBalanced">● ACTIVE</span>
+                </div>
+                <div class="card-stats">
+                    <div class="cs-row"><span>Win Rate</span><span id="statBalancedWR">—</span></div>
+                    <div class="cs-row"><span>Trades</span><span id="statBalancedTrades">0</span></div>
+                    <div class="cs-row"><span>Wins / Losses</span><span id="statBalancedWL">0 / 0</span></div>
+                    <div class="cs-row"><span>P&amp;L</span><span id="statBalancedPnl">$0.00</span></div>
+                </div>
+                <div class="card-footer">
+                    <span class="perf-label">⭐⭐ STEADY</span>
+                    <button class="btn-switch-card" onclick="switchMode('balanced')">USE MODE</button>
+                </div>
+            </div>
+
+            <!-- Aggressive card -->
+            <div class="mode-card card-aggressive" id="cardAggressive">
+                <div class="card-header">
+                    <span class="card-title">🚀 AGGRESSIVE MODE</span>
+                    <span class="card-active-badge hidden" id="badgeAggressive">● ACTIVE</span>
+                </div>
+                <div class="card-stats">
+                    <div class="cs-row"><span>Win Rate</span><span id="statAggressiveWR">—</span></div>
+                    <div class="cs-row"><span>Trades</span><span id="statAggressiveTrades">0</span></div>
+                    <div class="cs-row"><span>Wins / Losses</span><span id="statAggressiveWL">0 / 0</span></div>
+                    <div class="cs-row"><span>P&amp;L</span><span id="statAggressivePnl">$0.00</span></div>
+                </div>
+                <div class="card-footer">
+                    <span class="perf-label">⭐⭐⭐ EXCELLENT</span>
+                    <button class="btn-switch-card" onclick="switchMode('aggressive')">USE MODE</button>
+                </div>
+            </div>
+
+            <!-- Maximum card -->
+            <div class="mode-card card-maximum" id="cardMaximum">
+                <div class="card-header">
+                    <span class="card-title">💥 MAXIMUM MODE</span>
+                    <span class="card-active-badge hidden" id="badgeMaximum">● ACTIVE</span>
+                </div>
+                <div class="card-stats">
+                    <div class="cs-row"><span>Win Rate</span><span id="statMaximumWR">—</span></div>
+                    <div class="cs-row"><span>Trades</span><span id="statMaximumTrades">0</span></div>
+                    <div class="cs-row"><span>Wins / Losses</span><span id="statMaximumWL">0 / 0</span></div>
+                    <div class="cs-row"><span>P&amp;L</span><span id="statMaximumPnl">$0.00</span></div>
+                </div>
+                <div class="card-footer">
+                    <span class="perf-label">⭐⭐⭐⭐⭐ EXCEPTIONAL</span>
+                    <button class="btn-switch-card" onclick="switchMode('maximum')">USE MODE</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══ PROJECTIONS PANEL ═══ -->
+        <div class="projections-panel">
+            <div class="proj-title">📈 GROWTH PROJECTIONS (current balance)</div>
+            <div class="proj-table">
+                <div class="proj-header">
+                    <span>MODE</span><span>DAILY END</span><span>DAILY %</span><span>WEEKLY</span><span>MONTHLY</span>
+                </div>
+                <div class="proj-row proj-balanced" id="projBalanced">
+                    <span>⚖️ BALANCED</span><span id="projBal_day">—</span><span id="projBal_pct">—</span><span id="projBal_week">—</span><span id="projBal_month">—</span>
+                </div>
+                <div class="proj-row proj-aggressive" id="projAggressive">
+                    <span>🚀 AGGRESSIVE</span><span id="projAgg_day">—</span><span id="projAgg_pct">—</span><span id="projAgg_week">—</span><span id="projAgg_month">—</span>
+                </div>
+                <div class="proj-row proj-maximum" id="projMaximum">
+                    <span>💥 MAXIMUM</span><span id="projMax_day">—</span><span id="projMax_pct">—</span><span id="projMax_week">—</span><span id="projMax_month">—</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══ TRADING CONTROLS ═══ -->
+        <div class="trading-controls">
+            <div class="trade-info">
+                <span>Risk: 1% loss / 4% profit per trade &nbsp;|&nbsp; Strategy: <strong id="stratDesc">Momentum + Volatility</strong></span>
+            </div>
+            <div class="trade-buttons">
+                <button class="btn-trade btn-higher" onclick="executeTrade('HIGHER')">▲ HIGHER</button>
+                <button class="btn-trade btn-auto" id="btnAutoTrade" onclick="toggleAutoTrade()">▶ AUTO TRADE</button>
+                <button class="btn-trade btn-lower" onclick="executeTrade('LOWER')">▼ LOWER</button>
+            </div>
+        </div>
+
+        <!-- ═══ TRADE LOG ═══ -->
+        <div class="trade-log-panel">
+            <div class="log-header">
+                <span class="log-title">📋 TRADE LOG</span>
+                <button class="btn-small" onclick="refreshTrades()">↻ Refresh</button>
+            </div>
+            <div class="trade-log-scroll">
+                <table class="trade-table">
+                    <thead>
+                        <tr>
+                            <th>#</th><th>Time</th><th>Mode</th><th>Dir</th>
+                            <th>Stake</th><th>Conf</th><th>Pattern</th><th>Result</th><th>P&amp;L</th><th>Balance</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tradeLogBody">
+                        <tr><td colspan="10" class="empty-row">No trades yet. Connect to Deriv or use demo mode.</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+</div>
+
+<!-- ═══ TOAST NOTIFICATIONS ═══ -->
+<div class="toast-container" id="toastContainer"></div>
+
+<script src="/static/script.js"></script>
 </body>
 </html>
