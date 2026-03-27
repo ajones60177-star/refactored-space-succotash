@@ -119,6 +119,7 @@
 
 <!-- Admin Button -->
 <button class="admin-btn" onclick="openAdminModal()" title="Admin Settings">⚙️</button>
+<button class="license-btn" onclick="openLicenseModal()" title="License &amp; Billing">🔑</button>
 
 <!-- Admin Modal -->
 <div id="admin-modal" class="modal hidden">
@@ -149,6 +150,52 @@
     <p style="font-size: 12px; color: var(--text-secondary); margin-top: 12px;">Theme changes apply immediately</p>
     
     <button class="btn-modal secondary" onclick="closeAdminModal()">Close</button>
+  </div>
+</div>
+
+<!-- License Modal -->
+<div id="license-modal" class="modal hidden">
+  <div class="modal-content modal-wide">
+    <h3>🔑 My License</h3>
+    <div id="license-info"><p class="muted">Loading...</p></div>
+    <hr class="modal-divider">
+    <h4 style="margin:16px 0 12px">📋 Admin: Manage Licenses</h4>
+    <div class="admin-license-form">
+      <input id="lic-username" type="text" placeholder="Username to grant license to">
+      <select id="lic-tier">
+        <option value="trial">Trial (30 days, 10 trades/day)</option>
+        <option value="basic">Basic ($19 — 50 trades/day)</option>
+        <option value="pro">Pro ($49 — 500 trades/day)</option>
+        <option value="premium">Premium ($99 — Unlimited)</option>
+      </select>
+      <input id="lic-days" type="number" placeholder="Days valid (blank=perpetual)" min="1" value="30">
+      <button class="btn-modal" onclick="adminCreateLicense()">Generate License Key</button>
+    </div>
+    <hr class="modal-divider">
+    <h4 style="margin:16px 0 8px">All Licenses</h4>
+    <div class="license-table-wrap">
+      <table class="license-table">
+        <thead>
+          <tr><th>Key</th><th>User</th><th>Tier</th><th>Expires</th><th>Status</th><th>Action</th></tr>
+        </thead>
+        <tbody id="license-table-body"></tbody>
+      </table>
+    </div>
+    <button class="btn-modal secondary" onclick="loadAdminLicenseList()">🔄 Refresh</button>
+    <button class="btn-modal accent" onclick="openPricingModal()">💳 View Pricing Plans</button>
+    <button class="btn-modal secondary" onclick="closeLicenseModal()">Close</button>
+  </div>
+</div>
+
+<!-- Pricing Modal -->
+<div id="pricing-modal" class="modal hidden">
+  <div class="modal-content modal-wide">
+    <h3>💳 ALFA AI Trader — Pricing Plans</h3>
+    <p class="muted" style="text-align:center;margin-bottom:20px">Choose a plan to get your license key. One-time payment, lifetime access for the selected period.</p>
+    <div id="pricing-tiers" class="pricing-grid"><p class="muted">Loading...</p></div>
+    <hr class="modal-divider">
+    <p class="muted" style="text-align:center;font-size:12px">Payments are processed securely via Stripe. After payment, your license key will be emailed to you.</p>
+    <button class="btn-modal secondary" onclick="closePricingModal()">Close</button>
   </div>
 </div>
 
@@ -707,11 +754,176 @@
   }
 
   function showLogin(){document.getElementById('login').style.display='flex'}
-  function validateSession(){document.getElementById('login').style.display='none'; document.getElementById('app').classList.remove('hidden'); loadWalletBalance(); loadTradeHistory();}
+  function validateSession(){document.getElementById('login').style.display='none'; document.getElementById('app').classList.remove('hidden'); loadWalletBalance(); loadTradeHistory(); loadAdminLicenseList();}
 
   // Load saved theme on startup
   const savedTheme = localStorage.getItem('theme') || 'default';
   applyTheme(savedTheme);
+
+  // ===== LICENSE & PAYMENT =====
+  async function openLicenseModal() {
+    document.getElementById('license-modal').classList.remove('hidden');
+    await loadLicenseInfo();
+  }
+  function closeLicenseModal() {
+    document.getElementById('license-modal').classList.add('hidden');
+  }
+  function openPricingModal() {
+    closeLicenseModal();
+    document.getElementById('pricing-modal').classList.remove('hidden');
+    loadPricingTiers();
+  }
+  function closePricingModal() {
+    document.getElementById('pricing-modal').classList.add('hidden');
+  }
+
+  async function loadLicenseInfo() {
+    if (!token) return;
+    try {
+      const res = await fetch(API + '/api/license/my', {
+        headers: { 'Authorization': 'Bearer ' + token }
+      });
+      const licContainer = document.getElementById('license-info');
+      if (res.ok) {
+        const data = await res.json();
+        if (data.has_license) {
+          const expiry = data.expires_at ? `Expires: ${data.expires_at.split('T')[0]}` : 'Perpetual (never expires)';
+          const ownerBadge = data.is_owner ? '<span class="tier-badge owner">👑 OWNER</span>' : '';
+          licContainer.innerHTML = `
+            <div class="license-card">
+              <div class="lic-tier">${data.tier.toUpperCase()} ${ownerBadge}</div>
+              <div class="lic-key">${data.license_key}</div>
+              <div class="lic-expiry">${expiry}</div>
+              <div class="lic-features">Features: ${(data.features || []).join(', ')}</div>
+            </div>`;
+        } else {
+          licContainer.innerHTML = `
+            <div class="no-license">
+              <p>No active license found.</p>
+              <button class="btn-modal" onclick="openPricingModal()">View Plans &amp; Pricing</button>
+            </div>`;
+        }
+      }
+    } catch(err) { console.error(err); }
+  }
+
+  async function loadPricingTiers() {
+    try {
+      const res = await fetch(API + '/api/pricing');
+      if (!res.ok) return;
+      const data = await res.json();
+      const container = document.getElementById('pricing-tiers');
+      container.innerHTML = data.tiers.map(tier => `
+        <div class="pricing-card ${tier.id}">
+          <div class="plan-name">${tier.label}</div>
+          <div class="plan-price">${tier.price_usd === 0 ? 'Free' : '$' + tier.price_usd.toFixed(2) + '<span>/one-time</span>'}</div>
+          <ul class="plan-features">
+            ${tier.features.map(f => `<li>✅ ${f.replace(/_/g,' ')}</li>`).join('')}
+            <li>${tier.max_trades_per_day ? `📊 ${tier.max_trades_per_day} trades/day` : '♾️ Unlimited trades'}</li>
+          </ul>
+          ${tier.price_usd > 0 ? `<button class="btn-buy" onclick="startCheckout('${tier.id}')">Buy Now</button>` : `<button class="btn-buy free" onclick="closePricingModal()">Current Free Plan</button>`}
+        </div>
+      `).join('');
+    } catch(err) { console.error(err); }
+  }
+
+  async function startCheckout(tier) {
+    const email = prompt('Enter your email address for the license:');
+    if (!email) return;
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      alert('Please enter a valid email address.');
+      return;
+    }
+    try {
+      const res = await fetch(API + '/payment/checkout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ tier, email, username: email })
+      });
+      if (res.ok) {
+        const data = await res.json();
+        if (data.checkout_url) {
+          window.location.href = data.checkout_url;
+        } else {
+          alert('Payment URL not available. Please contact the admin.');
+        }
+      } else {
+        const err = await res.json();
+        alert(err.detail || 'Failed to start checkout. Contact admin to purchase access.');
+      }
+    } catch(err) {
+      alert('Checkout error: ' + err.message);
+    }
+  }
+
+  // ===== ADMIN LICENSE MANAGEMENT (owner only) =====
+  async function adminCreateLicense() {
+    const username = document.getElementById('lic-username').value.trim();
+    const tier = document.getElementById('lic-tier').value;
+    const daysInput = document.getElementById('lic-days').value.trim();
+    const days = daysInput === '' ? null : parseInt(daysInput) || 30;
+    if (!username) return alert('Enter a username');
+    try {
+      const res = await fetch(API + '/admin/licenses/create', {
+        method: 'POST',
+        headers: {
+          'Authorization': 'Bearer ' + token,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ username, tier, days_valid: days })
+      });
+      if (res.ok) {
+        const data = await res.json();
+        alert(`✅ License created!\n\nKey: ${data.license_key}\nTier: ${data.tier}\nUser: ${data.username}`);
+        loadAdminLicenseList();
+      } else {
+        const err = await res.json();
+        alert('Error: ' + (err.detail || 'Failed to create license'));
+      }
+    } catch(err) { alert('Error: ' + err.message); }
+  }
+
+  async function loadAdminLicenseList() {
+    if (!token) return;
+    try {
+      const res = await fetch(API + '/admin/licenses', {
+        headers: { 'Authorization': 'Bearer ' + token }
+      });
+      if (!res.ok) return;
+      const data = await res.json();
+      const tbody = document.getElementById('license-table-body');
+      if (!tbody) return;
+      tbody.innerHTML = data.licenses.map(l => `
+        <tr class="${l.is_active ? '' : 'revoked'}">
+          <td class="lic-key-cell">${l.license_key}</td>
+          <td>${l.username}</td>
+          <td><span class="tier-badge ${l.tier}">${l.tier}</span></td>
+          <td>${l.expires_at ? l.expires_at.split('T')[0] : 'Perpetual'}</td>
+          <td>${l.is_active ? '✅ Active' : '❌ Revoked'}</td>
+          <td>${l.is_active ? `<button class="btn-revoke" onclick="revokeKey('${l.license_key}')">Revoke</button>` : ''}</td>
+        </tr>`).join('');
+    } catch(err) { console.error(err); }
+  }
+
+  async function revokeKey(key) {
+    if (!confirm(`Revoke license ${key}?`)) return;
+    try {
+      const res = await fetch(API + '/admin/licenses/revoke', {
+        method: 'POST',
+        headers: {
+          'Authorization': 'Bearer ' + token,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ license_key: key })
+      });
+      if (res.ok) {
+        alert('License revoked.');
+        loadAdminLicenseList();
+      } else {
+        alert('Failed to revoke license');
+      }
+    } catch(err) { alert('Error: ' + err.message); }
+  }
 </script>
 
 </body>

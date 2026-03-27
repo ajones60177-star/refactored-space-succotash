@@ -746,6 +746,302 @@ select option {
   box-shadow: 0 8px 24px rgba(0, 212, 255, 0.4);
 }
 
+/* ===== LICENSE BUTTON ===== */
+.license-btn {
+  position: fixed;
+  top: 80px;
+  right: 20px;
+  z-index: 999;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--accent-green), var(--accent-blue));
+  border: none;
+  cursor: pointer;
+  font-size: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 16px rgba(16, 185, 129, 0.3);
+}
+
+.license-btn:hover {
+  transform: scale(1.1);
+  box-shadow: 0 8px 24px rgba(16, 185, 129, 0.5);
+}
+
+/* ===== MODAL WIDE ===== */
+.modal-wide .modal-content,
+.modal-content.modal-wide {
+  max-width: 800px;
+  width: 95vw;
+  max-height: 88vh;
+  overflow-y: auto;
+}
+
+.modal-divider {
+  border: none;
+  border-top: 1px solid var(--border);
+  margin: 20px 0;
+}
+
+/* ===== LICENSE CARD ===== */
+.license-card {
+  background: var(--glass);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 20px;
+  margin: 12px 0;
+}
+
+.lic-tier {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--accent-blue);
+  margin-bottom: 8px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.lic-key {
+  font-family: 'Courier New', monospace;
+  font-size: 16px;
+  color: var(--accent-green);
+  background: rgba(0,0,0,0.3);
+  padding: 8px 12px;
+  border-radius: 8px;
+  margin: 8px 0;
+  word-break: break-all;
+}
+
+.lic-expiry {
+  font-size: 13px;
+  color: var(--text-secondary);
+  margin-top: 6px;
+}
+
+.lic-features {
+  font-size: 12px;
+  color: var(--text-secondary);
+  margin-top: 4px;
+}
+
+.no-license {
+  text-align: center;
+  padding: 20px;
+  color: var(--text-secondary);
+}
+
+/* ===== TIER BADGES ===== */
+.tier-badge {
+  display: inline-block;
+  padding: 2px 10px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.tier-badge.owner {
+  background: linear-gradient(135deg, #f59e0b, #ef4444);
+  color: #fff;
+}
+
+.tier-badge.premium {
+  background: linear-gradient(135deg, var(--accent-purple), var(--accent-blue));
+  color: #fff;
+}
+
+.tier-badge.pro {
+  background: linear-gradient(135deg, var(--accent-blue), var(--accent-green));
+  color: #fff;
+}
+
+.tier-badge.basic {
+  background: var(--glass);
+  border: 1px solid var(--border);
+  color: var(--text-primary);
+}
+
+.tier-badge.trial {
+  background: rgba(255,255,255,0.1);
+  color: var(--text-secondary);
+}
+
+/* ===== ADMIN LICENSE FORM ===== */
+.admin-license-form {
+  display: grid;
+  grid-template-columns: 1fr 1fr 120px auto;
+  gap: 10px;
+  align-items: end;
+  margin: 12px 0;
+}
+
+.admin-license-form input,
+.admin-license-form select {
+  margin: 0;
+}
+
+@media (max-width: 600px) {
+  .admin-license-form {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ===== LICENSE TABLE ===== */
+.license-table-wrap {
+  overflow-x: auto;
+  margin: 8px 0 16px;
+}
+
+.license-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+}
+
+.license-table th,
+.license-table td {
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--border);
+  text-align: left;
+}
+
+.license-table th {
+  color: var(--text-secondary);
+  font-weight: 600;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.license-table tr.revoked td {
+  opacity: 0.45;
+  text-decoration: line-through;
+}
+
+.lic-key-cell {
+  font-family: 'Courier New', monospace;
+  color: var(--accent-green);
+  font-size: 11px;
+}
+
+.btn-revoke {
+  background: rgba(239,68,68,0.15);
+  color: #ef4444;
+  border: 1px solid rgba(239,68,68,0.3);
+  padding: 3px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 11px;
+  transition: background 0.2s;
+}
+
+.btn-revoke:hover {
+  background: rgba(239,68,68,0.3);
+}
+
+/* ===== PRICING GRID ===== */
+.pricing-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 16px;
+  margin: 20px 0;
+}
+
+.pricing-card {
+  background: var(--glass);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 24px 18px;
+  text-align: center;
+  transition: all 0.3s ease;
+}
+
+.pricing-card:hover {
+  background: var(--glass-hover);
+  transform: translateY(-4px);
+  box-shadow: 0 12px 32px rgba(0, 212, 255, 0.15);
+}
+
+.pricing-card.premium {
+  border-color: var(--accent-purple);
+  box-shadow: 0 4px 20px rgba(168, 85, 247, 0.2);
+}
+
+.plan-name {
+  font-size: 18px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 12px;
+  color: var(--accent-blue);
+}
+
+.plan-price {
+  font-size: 28px;
+  font-weight: 900;
+  color: var(--text-primary);
+  margin-bottom: 16px;
+}
+
+.plan-price span {
+  font-size: 13px;
+  font-weight: 400;
+  color: var(--text-secondary);
+}
+
+.plan-features {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 20px;
+  text-align: left;
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+
+.plan-features li {
+  padding: 4px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+
+.btn-buy {
+  width: 100%;
+  padding: 12px;
+  border-radius: 10px;
+  border: none;
+  background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
+  color: #fff;
+  font-weight: 700;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn-buy:hover {
+  transform: scale(1.04);
+  box-shadow: 0 4px 20px rgba(0,212,255,0.4);
+}
+
+.btn-buy.free {
+  background: var(--glass);
+  border: 1px solid var(--border);
+  color: var(--text-secondary);
+}
+
+.btn-modal.accent {
+  background: linear-gradient(135deg, var(--accent-green), var(--accent-blue));
+  color: #fff;
+  border: none;
+}
+
+.btn-modal.accent:hover {
+  opacity: 0.9;
+  transform: scale(1.02);
+}
+
 .status-badge {
   display: inline-block;
   padding: 4px 10px;
